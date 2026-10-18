@@ -1,0 +1,1 @@
+alter table public.emergency_requests alter column tracking_token set default replace(gen_random_uuid()::text,'-','');
