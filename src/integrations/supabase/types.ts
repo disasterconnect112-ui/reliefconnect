@@ -14,16 +14,265 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      emergency_requests: {
+        Row: {
+          accepted_at: string | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          emergency_type: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          mobile: string | null
+          name: string | null
+          ngo_id: string | null
+          people_count: number | null
+          priority: string
+          request_code: string
+          status: string
+          tracking_token: string
+          updated_at: string
+          volunteer_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          emergency_type: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          mobile?: string | null
+          name?: string | null
+          ngo_id?: string | null
+          people_count?: number | null
+          priority?: string
+          request_code: string
+          status?: string
+          tracking_token?: string
+          updated_at?: string
+          volunteer_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          emergency_type?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          mobile?: string | null
+          name?: string | null
+          ngo_id?: string | null
+          people_count?: number | null
+          priority?: string
+          request_code?: string
+          status?: string
+          tracking_token?: string
+          updated_at?: string
+          volunteer_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          availability: string
+          completed_tasks: number
+          created_at: string
+          emergency_tasks: number
+          experience: string | null
+          full_name: string
+          id: string
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          mobile: string | null
+          org_name: string | null
+          org_reg_no: string | null
+          org_type: string | null
+          points: number
+          role: Database["public"]["Enums"]["app_role"]
+          services: string[]
+          skills: string[]
+        }
+        Insert: {
+          address?: string | null
+          availability?: string
+          completed_tasks?: number
+          created_at?: string
+          emergency_tasks?: number
+          experience?: string | null
+          full_name?: string
+          id: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          mobile?: string | null
+          org_name?: string | null
+          org_reg_no?: string | null
+          org_type?: string | null
+          points?: number
+          role?: Database["public"]["Enums"]["app_role"]
+          services?: string[]
+          skills?: string[]
+        }
+        Update: {
+          address?: string | null
+          availability?: string
+          completed_tasks?: number
+          created_at?: string
+          emergency_tasks?: number
+          experience?: string | null
+          full_name?: string
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          mobile?: string | null
+          org_name?: string | null
+          org_reg_no?: string | null
+          org_type?: string | null
+          points?: number
+          role?: Database["public"]["Enums"]["app_role"]
+          services?: string[]
+          skills?: string[]
+        }
+        Relationships: []
+      }
+      request_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          request_id: string
+          status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          request_id: string
+          status: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          request_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_status_history_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "emergency_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resources: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          owner_id: string
+          quantity: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          owner_id: string
+          quantity?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          owner_id?: string
+          quantity?: number
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      priority_for: { Args: { t: string }; Returns: string }
+      submit_sos: {
+        Args: {
+          _description: string
+          _lat: number
+          _lng: number
+          _mobile: string
+          _name: string
+          _people: number
+          _type: string
+        }
+        Returns: {
+          request_code: string
+          tracking_token: string
+        }[]
+      }
+      track_request: {
+        Args: { _code: string }
+        Returns: {
+          created_at: string
+          emergency_type: string
+          history: Json
+          priority: string
+          request_code: string
+          status: string
+          updated_at: string
+        }[]
+      }
+      volunteer_action: {
+        Args: { _action: string; _request: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "volunteer" | "ngo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +399,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "volunteer", "ngo"],
+    },
   },
 } as const
