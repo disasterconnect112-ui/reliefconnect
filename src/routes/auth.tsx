@@ -23,9 +23,13 @@ function AuthPage() {
   const navigate = useNavigate();
   const { session } = useAuth();
   const [mode, setMode] = useState<"in" | "up">("in");
+  const [method, setMethod] = useState<"password" | "code">("password");
   const [role, setRole] = useState<"volunteer" | "ngo">("volunteer");
   const [f, setF] = useState({ email: "", password: "", full_name: "", mobile: "", org_name: "" });
   const [busy, setBusy] = useState(false);
+  // When set, we're waiting for the user to type the code emailed to them
+  const [codeFor, setCodeFor] = useState<null | "email" | "signup">(null);
+  const [code, setCode] = useState("");
 
   useEffect(() => {
     if (session) navigate({ to: "/dashboard" });
@@ -34,7 +38,17 @@ function AuthPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    if (mode === "in") {
+    if (mode === "in" && method === "code") {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: f.email.trim(),
+        options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/dashboard` },
+      });
+      if (error) toast.error(error.message.includes("not found") || error.message.includes("Signups") ? "No account with this email. Please register first." : error.message);
+      else {
+        setCodeFor("email");
+        toast.success("We emailed you a sign-in code.");
+      }
+    } else if (mode === "in") {
       const { error } = await supabase.auth.signInWithPassword({ email: f.email, password: f.password });
       if (error) toast.error(error.message);
     } else {
@@ -47,9 +61,21 @@ function AuthPage() {
         },
       });
       if (error) toast.error(error.message);
-      else if (!data.session) toast.success("Check your email to verify your account.");
+      else if (!data.session) {
+        setCodeFor("signup");
+        toast.success("Check your email for a verification code.");
+      }
     }
     setBusy(false);
+  };
+
+  const verify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!codeFor) return;
+    setBusy(true);
+    const { error } = await supabase.auth.verifyOtp({ email: f.email.trim(), token: code.trim(), type: codeFor });
+    setBusy(false);
+    if (error) toast.error("That code is wrong or expired. Try again.");
   };
 
   const google = async () => {
