@@ -106,7 +106,7 @@ function VolunteerView({ profile }: { profile: Profile }) {
   const mine = rows.filter((r) => r.volunteer_id === profile.id && r.status !== "completed");
   const done = rows.filter((r) => r.volunteer_id === profile.id && r.status === "completed");
   const sortedAvail = here
-    ? [...available].sort((a, b) => (PRI[a.priority] - PRI[b.priority]) || distanceKm(here, { lat: a.latitude ?? 0, lng: a.longitude ?? 0 }) - distanceKm(here, { lat: b.latitude ?? 0, lng: b.longitude ?? 0 }))
+    ? [...available].sort((a, b) => ((PRI[a.priority] ?? 3) - (PRI[b.priority] ?? 3)) || distanceKm(here, { lat: a.latitude ?? 0, lng: a.longitude ?? 0 }) - distanceKm(here, { lat: b.latitude ?? 0, lng: b.longitude ?? 0 }))
     : available;
 
   const act = async (id: string, action: string) => {

@@ -29,7 +29,7 @@ function Index() {
           <span className="font-display text-3xl font-black tracking-tight md:text-4xl">{t("sendSos")}</span>
         </Link>
         <p className="mt-10 text-muted-foreground">{t("noLogin")}</p>
-        <Link to="/track" className="mt-4 inline-flex items-center gap-2 rounded-full border bg-card px-5 py-2.5 font-medium hover:bg-muted">
+        <Link to="/track" search={{ id: undefined }} className="mt-4 inline-flex items-center gap-2 rounded-full border bg-card px-5 py-2.5 font-medium hover:bg-muted">
           <Search className="h-4 w-4" /> {t("track")}
         </Link>
       </section>
