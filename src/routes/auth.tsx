@@ -94,7 +94,38 @@ function AuthPage() {
             </button>
           ))}
         </div>
+        {codeFor ? (
+          <form onSubmit={verify} className="mt-5 space-y-3">
+            <p className="text-sm text-muted-foreground">Enter the code we sent to <b>{f.email}</b>.</p>
+            <input
+              required
+              autoFocus
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={8}
+              className={`${input} text-center font-mono text-2xl tracking-[0.4em]`}
+              placeholder="••••••"
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+            />
+            <button disabled={busy || code.length < 6} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-semibold text-primary-foreground disabled:opacity-60">
+              {busy && <Loader2 className="h-4 w-4 animate-spin" />} Verify code
+            </button>
+            <button type="button" onClick={() => { setCodeFor(null); setCode(""); }} className="w-full text-sm text-muted-foreground underline">
+              Use a different email
+            </button>
+          </form>
+        ) : (
         <form onSubmit={submit} className="mt-5 space-y-3">
+          {mode === "in" && (
+            <div className="flex gap-2 text-sm">
+              {(["password", "code"] as const).map((m) => (
+                <button type="button" key={m} onClick={() => setMethod(m)} className={`flex-1 rounded-lg border-2 py-1.5 font-semibold ${method === m ? "border-sos" : ""}`}>
+                  {m === "password" ? "Password" : "Email code"}
+                </button>
+              ))}
+            </div>
+          )}
           {mode === "up" && (
             <>
               <div className="grid grid-cols-2 gap-2 text-sm">
@@ -110,11 +141,12 @@ function AuthPage() {
             </>
           )}
           <input required type="email" className={input} placeholder="Email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
-          <input required type="password" minLength={6} className={input} placeholder="Password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+          {!(mode === "in" && method === "code") && <input required type="password" minLength={6} className={input} placeholder="Password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />}
           <button disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-semibold text-primary-foreground">
-            {busy && <Loader2 className="h-4 w-4 animate-spin" />} {mode === "in" ? "Sign in" : "Create account"}
+            {busy && <Loader2 className="h-4 w-4 animate-spin" />} {mode === "in" ? (method === "code" ? "Send me a code" : "Sign in") : "Create account"}
           </button>
         </form>
+        )}
         <div className="my-4 text-center text-xs text-muted-foreground">or</div>
         <button onClick={google} className="w-full rounded-lg border py-2.5 font-semibold hover:bg-muted">
           Continue with Google
