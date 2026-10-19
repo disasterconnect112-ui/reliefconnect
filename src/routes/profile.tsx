@@ -57,11 +57,11 @@ function ProfilePage() {
   const save = async () => {
     const { error } = await supabase
       .from("profiles")
-      .update({
+      .update(JSON.parse(JSON.stringify({
         full_name: f.full_name, mobile: f.mobile, location: f.location, latitude: f.latitude, longitude: f.longitude,
         skills: f.skills, availability: f.availability, experience: f.experience,
         org_name: f.org_name, org_reg_no: f.org_reg_no, org_type: f.org_type, address: f.address, services: f.services,
-      })
+      })))
       .eq("id", profile.id);
     if (error) toast.error(error.message);
     else {
