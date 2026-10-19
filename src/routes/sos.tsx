@@ -34,7 +34,7 @@ function SosPage() {
   const [result, setResult] = useState<{ code: string } | null>(null);
 
   const getLocation = () => {
-    if (!navigator.geolocation) return toast.error("Location not supported on this device");
+    if (!navigator.geolocation) { toast.error("Location not supported on this device"); return; }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (p) => {
@@ -66,8 +66,8 @@ function SosPage() {
   };
 
   const submit = async () => {
-    if (!type) return toast.error(t("chooseType"));
-    if (!loc) return toast.error(t("shareLocation"));
+    if (!type) { toast.error(t("chooseType")); return; }
+    if (!loc) { toast.error(t("shareLocation")); return; }
     setSending(true);
     const { data, error } = await supabase.rpc("submit_sos", {
       _type: type,
@@ -79,7 +79,7 @@ function SosPage() {
       _people: form.people ? Number(form.people) : (null as unknown as number),
     });
     setSending(false);
-    if (error || !data?.[0]) return toast.error("Could not send. Please try again.");
+    if (error || !data?.[0]) { toast.error("Could not send. Please try again."); return; }
     const code = data[0].request_code;
     localStorage.setItem("lastRequest", code);
     setResult({ code });

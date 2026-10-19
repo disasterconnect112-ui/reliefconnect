@@ -68,7 +68,7 @@ export type TKey = keyof typeof rows;
 export function translate(lang: Lang, key: TKey | string): string {
   const r = rows[key as string];
   if (!r) return key as string;
-  return r[idx[lang]] ?? r[0];
+  return r[idx[lang]] ?? r[0] ?? "";
 }
 
 const Ctx = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: TKey | string) => string }>({

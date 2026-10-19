@@ -7,7 +7,7 @@ import { speak } from "@/lib/voice";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/track")({
-  validateSearch: (s: Record<string, unknown>) => ({ id: typeof s.id === "string" ? s.id : undefined }),
+  validateSearch: (s: Record<string, unknown>) => ({ id: typeof s["id"] === "string" ? (s["id"] as string) : undefined }),
   head: () => ({
     meta: [
       { title: "Track Emergency Request — ReliefConnect" },

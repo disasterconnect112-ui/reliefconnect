@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-export type MapPoint = { lat: number; lng: number; kind: "request" | "volunteer" | "ngo" | "shelter" | "camp"; label: string };
+import type { MapPoint } from "@/lib/map-types";
+export type { MapPoint };
 
 const COLORS: Record<MapPoint["kind"], string> = {
   request: "#dc2626",
