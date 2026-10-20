@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Loader2, MapPin, Mic, CheckCircle2 } from "lucide-react";
+import { Loader2, MapPin, Mic, CheckCircle2, Stethoscope, LifeBuoy, Baby, Accessibility, Pill, Tent, Utensils, Droplets, CircleAlert, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, PriorityBadge } from "@/components/AppShell";
 import { useI18n } from "@/lib/i18n";
@@ -19,8 +19,8 @@ export const Route = createFileRoute("/sos")({
   component: SosPage,
 });
 
-const ICONS: Record<EmergencyType, string> = {
-  medical: "🩺", rescue: "🛟", child: "🧒", elderly: "🧓", medicine: "💊", shelter: "⛺", food: "🍚", water: "💧", other: "❗",
+const ICONS: Record<EmergencyType, LucideIcon> = {
+  medical: Stethoscope, rescue: LifeBuoy, child: Baby, elderly: Accessibility, medicine: Pill, shelter: Tent, food: Utensils, water: Droplets, other: CircleAlert,
 };
 
 function SosPage() {
@@ -119,7 +119,7 @@ function SosPage() {
               onClick={() => setType(e)}
               className={`flex flex-col items-center gap-1 rounded-xl border-2 p-3 text-center text-sm font-semibold transition ${type === e ? "border-sos bg-sos/10" : "border-transparent bg-card"}`}
             >
-              <span className="text-2xl">{ICONS[e]}</span>
+              {(() => { const I = ICONS[e]; return <I className="h-7 w-7" />; })()}
               {t(e)}
               {priorityFor(e) === "critical" && <span className="text-[10px] font-bold uppercase text-critical">critical</span>}
             </button>
