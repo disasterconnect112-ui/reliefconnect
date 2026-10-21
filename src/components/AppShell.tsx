@@ -84,6 +84,7 @@ export function AppShell({ children, speakText }: { children: ReactNode; speakTe
           </div>
         </div>
       </header>
+      <OfflineBar />
       <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
       <nav className="fixed inset-x-0 bottom-0 z-[1000] grid grid-cols-3 border-t bg-card md:hidden">
         {nav.map((n) => (
