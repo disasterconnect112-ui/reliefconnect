@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import type { ReactNode } from "react";
-import { Globe, Home, LayoutDashboard, LogOut, Map, Search, Siren, User, Volume2 } from "lucide-react";
+import { useEffect, type ReactNode } from "react";
+import { toast } from "sonner";
+import { flushQueue, useOnline, useQueueCount } from "@/lib/offline";
+import { Globe, Home, LayoutDashboard, LogOut, Map, Search, Siren, User, Volume2, WifiOff } from "lucide-react";
 import { LANGS, useI18n, type Lang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { speak } from "@/lib/voice";
@@ -84,6 +86,7 @@ export function AppShell({ children, speakText }: { children: ReactNode; speakTe
           </div>
         </div>
       </header>
+      <OfflineBar />
       <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
       <nav className="fixed inset-x-0 bottom-0 z-[1000] grid grid-cols-3 border-t bg-card md:hidden">
         {nav.map((n) => (
@@ -106,4 +109,31 @@ export function AppShell({ children, speakText }: { children: ReactNode; speakTe
 export function PriorityBadge({ p }: { p: string }) {
   const cls = p === "critical" ? "bg-critical text-sos-foreground" : p === "high" ? "bg-high text-foreground" : "bg-normal text-sos-foreground";
   return <span className={`rounded px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${cls}`}>{p}</span>;
+}
+
+function OfflineBar() {
+  const { t } = useI18n();
+  const online = useOnline();
+  const pending = useQueueCount();
+  useEffect(() => {
+    if (!online || !pending) return;
+    flushQueue().then((codes) => {
+      if (codes.length) toast.success(`${t("sosSent")}: ${codes.join(", ")}`, { duration: 15000 });
+    });
+  }, [online, pending, t]);
+  if (online && !pending) return null;
+  return (
+    <div className="border-b bg-sos/10 px-4 py-3 text-sm">
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-2">
+        <WifiOff className="h-4 w-4 text-sos" />
+        <span className="font-semibold">{online ? `${t("pendingSos")}: ${pending}` : t("offline")}</span>
+        <span className="ml-auto flex gap-2">
+          {t("callHelp")}:
+          <a href="tel:112" className="rounded bg-sos px-2 font-bold text-sos-foreground">112</a>
+          <a href="tel:108" className="rounded bg-sos px-2 font-bold text-sos-foreground">108</a>
+          <a href="tel:1078" className="rounded bg-sos px-2 font-bold text-sos-foreground">1078</a>
+        </span>
+      </div>
+    </div>
+  );
 }
