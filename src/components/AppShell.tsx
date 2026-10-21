@@ -108,3 +108,30 @@ export function PriorityBadge({ p }: { p: string }) {
   const cls = p === "critical" ? "bg-critical text-sos-foreground" : p === "high" ? "bg-high text-foreground" : "bg-normal text-sos-foreground";
   return <span className={`rounded px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${cls}`}>{p}</span>;
 }
+
+function OfflineBar() {
+  const { t } = useI18n();
+  const online = useOnline();
+  const pending = useQueueCount();
+  useEffect(() => {
+    if (!online || !pending) return;
+    flushQueue().then((codes) => {
+      if (codes.length) toast.success(`${t("sosSent")}: ${codes.join(", ")}`, { duration: 15000 });
+    });
+  }, [online, pending, t]);
+  if (online && !pending) return null;
+  return (
+    <div className="border-b bg-sos/10 px-4 py-3 text-sm">
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-2">
+        <WifiOff className="h-4 w-4 text-sos" />
+        <span className="font-semibold">{online ? `${t("pendingSos")}: ${pending}` : t("offline")}</span>
+        <span className="ml-auto flex gap-2">
+          {t("callHelp")}:
+          <a href="tel:112" className="rounded bg-sos px-2 font-bold text-sos-foreground">112</a>
+          <a href="tel:108" className="rounded bg-sos px-2 font-bold text-sos-foreground">108</a>
+          <a href="tel:1078" className="rounded bg-sos px-2 font-bold text-sos-foreground">1078</a>
+        </span>
+      </div>
+    </div>
+  );
+}

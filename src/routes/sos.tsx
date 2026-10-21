@@ -6,6 +6,7 @@ import { AppShell, PriorityBadge } from "@/components/AppShell";
 import { useI18n } from "@/lib/i18n";
 import { EMERGENCY_TYPES, listen, matchEmergency, priorityFor, speak, type EmergencyType } from "@/lib/voice";
 import { supabase } from "@/integrations/supabase/client";
+import { enqueueSos } from "@/lib/offline";
 
 export const Route = createFileRoute("/sos")({
   head: () => ({
@@ -32,6 +33,7 @@ function SosPage() {
   const [form, setForm] = useState({ name: "", mobile: "", description: "", people: "" });
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ code: string } | null>(null);
+  const [saved, setSaved] = useState(false);
 
   const getLocation = () => {
     if (!navigator.geolocation) { toast.error("Location not supported on this device"); return; }
@@ -97,6 +99,22 @@ function SosPage() {
     setResult({ code });
     speak(`${t("sosSent")}. ${code.split("").join(" ")}`, lang);
   };
+
+  if (saved && !result)
+    return (
+      <AppShell>
+        <div className="mx-auto max-w-md rounded-2xl border bg-card p-8 text-center">
+          <CheckCircle2 className="mx-auto h-14 w-14 text-sos" />
+          <p className="mt-3 text-lg font-bold">{t("sosSaved")}</p>
+          <p className="mt-4 text-sm text-muted-foreground">{t("callHelp")}</p>
+          <div className="mt-2 flex justify-center gap-2">
+            {["112", "108", "1078"].map((n) => (
+              <a key={n} href={`tel:${n}`} className="rounded-lg bg-sos px-4 py-2 font-bold text-sos-foreground">{n}</a>
+            ))}
+          </div>
+        </div>
+      </AppShell>
+    );
 
   if (result)
     return (

@@ -31,7 +31,7 @@ export async function flushQueue(): Promise<string[]> {
       else sent.push(data[0].request_code);
     }
     writeQueue(left);
-    if (sent.length) localStorage.setItem("lastRequest", sent[sent.length - 1]);
+    if (sent.length) localStorage.setItem("lastRequest", sent[sent.length - 1]!);
   } finally { flushing = false; }
   return sent;
 }
