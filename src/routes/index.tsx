@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useAuth } from "@/lib/auth";
 import { HandHeart, Building2, Search, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useI18n } from "@/lib/i18n";
@@ -17,6 +19,13 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t } = useI18n();
+  const { session } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    // Email sign-in links may land here; send the signed-in user to their dashboard.
+    const fromLink = /access_token|type=magiclink|type=signup/.test(window.location.hash) || new URLSearchParams(window.location.search).has("code");
+    if (session && fromLink) navigate({ to: "/dashboard", replace: true });
+  }, [session, navigate]);
   return (
     <AppShell speakText={`${t("noLogin")} ${t("howItWorks")}: 1. ${t("step1")}. 2. ${t("step2")}. 3. ${t("step3")}.`}>
       <section className="flex flex-col items-center pt-6 text-center">
