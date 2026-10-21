@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import type { ReactNode } from "react";
-import { Globe, Home, LayoutDashboard, LogOut, Map, Search, Siren, User, Volume2 } from "lucide-react";
+import { useEffect, type ReactNode } from "react";
+import { toast } from "sonner";
+import { flushQueue, useOnline, useQueueCount } from "@/lib/offline";
+import { Globe, Home, LayoutDashboard, LogOut, Map, Search, Siren, User, Volume2, WifiOff } from "lucide-react";
 import { LANGS, useI18n, type Lang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { speak } from "@/lib/voice";
