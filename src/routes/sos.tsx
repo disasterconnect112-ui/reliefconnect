@@ -68,18 +68,30 @@ function SosPage() {
   const submit = async () => {
     if (!type) { toast.error(t("chooseType")); return; }
     if (!loc) { toast.error(t("shareLocation")); return; }
-    setSending(true);
-    const { data, error } = await supabase.rpc("submit_sos", {
+    const args = {
       _type: type,
       _lat: loc.lat,
       _lng: loc.lng,
       _name: form.name,
       _mobile: form.mobile,
       _description: form.description,
-      _people: form.people ? Number(form.people) : (null as unknown as number),
-    });
+      _people: form.people ? Number(form.people) : null,
+    };
+    const saveOffline = () => {
+      enqueueSos({ ...args, at: Date.now() });
+      setSaved(true);
+      speak(t("sosSaved"), lang);
+    };
+    if (!navigator.onLine) { saveOffline(); return; }
+    setSending(true);
+    const { data, error } = await supabase
+      .rpc("submit_sos", { ...args, _people: args._people as unknown as number })
+      .then((r) => r, () => ({ data: null, error: new Error("network") }));
     setSending(false);
-    if (error || !data?.[0]) { toast.error("Could not send. Please try again."); return; }
+    if (error || !data?.[0]) {
+      if (!navigator.onLine || error?.message?.toLowerCase().includes("fetch") || error?.message === "network") { saveOffline(); return; }
+      toast.error("Could not send. Please try again."); return;
+    }
     const code = data[0].request_code;
     localStorage.setItem("lastRequest", code);
     setResult({ code });
