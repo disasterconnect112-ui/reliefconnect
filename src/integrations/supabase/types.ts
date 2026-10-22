@@ -254,6 +254,22 @@ export type Database = {
           tracking_token: string
         }[]
       }
+      submit_sos_multi: {
+        Args: {
+          _description: string
+          _lat: number
+          _lng: number
+          _mobile: string
+          _name: string
+          _people: number
+          _severity: string
+          _types: string[]
+        }
+        Returns: {
+          request_code: string
+          tracking_token: string
+        }[]
+      }
       track_request: {
         Args: { _code: string }
         Returns: {
