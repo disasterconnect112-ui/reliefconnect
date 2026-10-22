@@ -24,7 +24,12 @@ export async function setupServiceWorker() {
     await navigator.serviceWorker.ready;
     // Warm the cache so the emergency screens open later without internet.
     const cache = await caches.open("pages");
-    await Promise.allSettled(ESSENTIAL_PAGES.map((p) => fetch(p).then((r) => r.ok && cache.put(p, r))));
+    await Promise.allSettled(
+      ESSENTIAL_PAGES.map(async (p) => {
+        const r = await fetch(p);
+        if (r.ok) await cache.put(p, r);
+      }),
+    );
   } catch (e) {
     console.warn("SW registration failed", e);
   }
