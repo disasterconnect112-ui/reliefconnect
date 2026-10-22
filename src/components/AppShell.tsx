@@ -107,7 +107,7 @@ export function AppShell({ children, speakText }: { children: ReactNode; speakTe
 }
 
 export function PriorityBadge({ p }: { p: string }) {
-  const cls = p === "critical" ? "bg-critical text-sos-foreground" : p === "high" ? "bg-high text-foreground" : "bg-normal text-sos-foreground";
+  const cls = p === "critical" ? "bg-critical text-sos-foreground" : p === "high" || p === "medium" ? "bg-high text-foreground" : "bg-normal text-sos-foreground";
   return <span className={`rounded px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${cls}`}>{p}</span>;
 }
 

@@ -21,7 +21,7 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 type Req = Tables<"emergency_requests">;
-const PRI: Record<string, number> = { critical: 0, high: 1, normal: 2 };
+const PRI: Record<string, number> = { critical: 0, high: 1, medium: 1, normal: 2, low: 2 };
 const STATUSES = ["received", "assigned", "on_the_way", "delivered", "completed"];
 
 function useRequests() {
@@ -72,7 +72,7 @@ function RequestCard({ r, here, children }: { r: Req; here: { lat: number; lng: 
   return (
     <div className="rounded-xl border bg-card p-4">
       <div className="flex items-center justify-between gap-2">
-        <span className="font-bold">{t(r.emergency_type)}</span>
+        <span className="font-bold">{r.emergency_type.split(",").map((x) => t(x as Parameters<typeof t>[0])).join(", ")}</span>
         <PriorityBadge p={r.priority} />
       </div>
       <p className="mt-1 text-xs text-muted-foreground">

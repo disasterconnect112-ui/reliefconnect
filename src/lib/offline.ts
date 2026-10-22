@@ -1,19 +1,36 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export type QueuedSos = {
-  _type: string; _lat: number; _lng: number; _name: string; _mobile: string; _description: string; _people: number | null; at: number;
+export type SosArgs = {
+  _types: string[]; _severity: string; _lat: number; _lng: number; _name: string; _mobile: string; _description: string; _people: number | null;
 };
+export type QueuedSos = SosArgs & { at: number };
+type LegacyQueued = Partial<QueuedSos> & { _type?: string };
 const KEY = "sosQueue";
 
 export function readQueue(): QueuedSos[] {
-  try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; }
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY) || "[]") as LegacyQueued[];
+    return raw.map((q) => ({
+      ...(q as QueuedSos),
+      _types: q._types ?? (q._type ? [q._type] : ["other"]),
+      _severity: q._severity ?? "critical",
+    }));
+  } catch { return []; }
 }
 function writeQueue(q: QueuedSos[]) {
   localStorage.setItem(KEY, JSON.stringify(q));
   window.dispatchEvent(new Event("sosqueue"));
 }
 export function enqueueSos(s: QueuedSos) { writeQueue([...readQueue(), s]); }
+
+export function sendSos(a: SosArgs) {
+  return supabase.rpc("submit_sos_multi", {
+    _types: a._types, _severity: a._severity, _lat: a._lat, _lng: a._lng,
+    _name: a._name, _mobile: a._mobile, _description: a._description,
+    _people: a._people as unknown as number,
+  });
+}
 
 let flushing = false;
 /** Sends queued SOS requests; returns the request codes that were sent. */
@@ -25,8 +42,7 @@ export async function flushQueue(): Promise<string[]> {
     const q = readQueue();
     const left: QueuedSos[] = [];
     for (const item of q) {
-      const { at: _at, ...args } = item;
-      const { data, error } = await supabase.rpc("submit_sos", { ...args, _people: args._people as unknown as number });
+      const { data, error } = await sendSos(item);
       if (error || !data?.[0]) left.push(item);
       else sent.push(data[0].request_code);
     }
