@@ -5,8 +5,7 @@ import { toast } from "sonner";
 import { AppShell, PriorityBadge } from "@/components/AppShell";
 import { useI18n } from "@/lib/i18n";
 import { EMERGENCY_TYPES, listen, matchEmergency, priorityFor, speak, type EmergencyType } from "@/lib/voice";
-import { supabase } from "@/integrations/supabase/client";
-import { enqueueSos } from "@/lib/offline";
+import { enqueueSos, sendSos } from "@/lib/offline";
 
 export const Route = createFileRoute("/sos")({
   head: () => ({
@@ -26,7 +25,9 @@ const ICONS: Record<EmergencyType, LucideIcon> = {
 
 function SosPage() {
   const { t, lang } = useI18n();
-  const [type, setType] = useState<EmergencyType | null>(null);
+  const [types, setTypes] = useState<EmergencyType[]>([]);
+  const [severity, setSeverity] = useState<"critical" | "medium" | "low" | null>(null);
+  const toggle = (e: EmergencyType) => setTypes((ts) => (ts.includes(e) ? ts.filter((x) => x !== e) : [...ts, e]));
   const [loc, setLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
   const [listening, setListening] = useState(false);
@@ -57,7 +58,7 @@ function SosPage() {
       (text) => {
         const m = matchEmergency(text);
         if (m) {
-          setType(m);
+          setTypes((ts) => (ts.includes(m) ? ts : [...ts, m]));
           speak(t(m), lang);
         } else toast(`“${text}”`);
       },
@@ -68,10 +69,12 @@ function SosPage() {
   };
 
   const submit = async () => {
-    if (!type) { toast.error(t("chooseType")); return; }
+    if (!types.length) { toast.error(t("chooseType")); return; }
+    if (!severity) { toast.error(t("severity")); return; }
     if (!loc) { toast.error(t("shareLocation")); return; }
     const args = {
-      _type: type,
+      _types: types,
+      _severity: severity,
       _lat: loc.lat,
       _lng: loc.lng,
       _name: form.name,
@@ -86,8 +89,7 @@ function SosPage() {
     };
     if (!navigator.onLine) { saveOffline(); return; }
     setSending(true);
-    const { data, error } = await supabase
-      .rpc("submit_sos", { ...args, _people: args._people as unknown as number })
+    const { data, error } = await sendSos(args)
       .then((r) => r, () => ({ data: null, error: new Error("network") }));
     setSending(false);
     if (error || !data?.[0]) {
@@ -140,14 +142,15 @@ function SosPage() {
             <Mic className="h-4 w-4" /> {listening ? "…" : "Voice"}
           </button>
         </div>
-        <p className="-mt-4 text-sm text-muted-foreground">{t("voiceHint")}</p>
+        <p className="-mt-4 text-sm text-muted-foreground">{t("multiHint")} · {t("voiceHint")}</p>
 
         <div className="grid grid-cols-3 gap-2">
           {EMERGENCY_TYPES.map((e) => (
             <button
               key={e}
-              onClick={() => setType(e)}
-              className={`flex flex-col items-center gap-1 rounded-xl border-2 p-3 text-center text-sm font-semibold transition ${type === e ? "border-sos bg-sos/10" : "border-transparent bg-card"}`}
+              onClick={() => toggle(e)}
+              aria-pressed={types.includes(e)}
+              className={`flex flex-col items-center gap-1 rounded-xl border-2 p-3 text-center text-sm font-semibold transition ${types.includes(e) ? "border-sos bg-sos/10" : "border-transparent bg-card"}`}
             >
               {(() => { const I = ICONS[e]; return <I className="h-7 w-7" />; })()}
               {t(e)}
@@ -179,11 +182,22 @@ function SosPage() {
           </div>
         </details>
 
-        {type && (
-          <div className="flex items-center gap-2 text-sm">
-            Priority: <PriorityBadge p={priorityFor(type)} />
+        <div className="rounded-xl border bg-card p-4">
+          <p className="font-semibold">{t("severity")} *</p>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {(["critical", "medium", "low"] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setSeverity(s)}
+                aria-pressed={severity === s}
+                className={`rounded-lg border-2 py-3 font-bold ${severity === s ? (s === "critical" ? "border-critical bg-critical text-sos-foreground" : s === "medium" ? "border-high bg-high text-foreground" : "border-normal bg-normal text-sos-foreground") : "border-transparent bg-muted"}`}
+              >
+                {t(s === "critical" ? "sevCritical" : s === "medium" ? "sevMedium" : "sevLow")}
+              </button>
+            ))}
           </div>
-        )}
+          {severity && <div className="mt-2 flex items-center gap-2 text-sm">Priority: <PriorityBadge p={severity} /></div>}
+        </div>
 
         <button onClick={submit} disabled={sending} className="shadow-sos flex w-full items-center justify-center gap-2 rounded-xl bg-sos py-4 font-display text-xl font-black text-sos-foreground disabled:opacity-60">
           {sending && <Loader2 className="h-5 w-5 animate-spin" />} {t("confirmSos")}
