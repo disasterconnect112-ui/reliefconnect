@@ -18,6 +18,7 @@ export default defineConfig({
         injectRegister: null,
         devOptions: { enabled: false },
         filename: "sw.js",
+        outDir: "dist/client",
         manifest: {
           name: "ReliefConnect",
           short_name: "ReliefConnect",
