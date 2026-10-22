@@ -73,7 +73,7 @@ function TrackPage() {
               <span className="font-mono font-bold">{res.request_code}</span>
               <PriorityBadge p={res.priority} />
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">{t(res.emergency_type)}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{res.emergency_type.split(",").map((x) => t(x as Parameters<typeof t>[0])).join(", ")}</p>
             <ol className="mt-5 space-y-4">
               {STEPS.map((s, i) => (
                 <li key={s} className="flex items-center gap-3">
