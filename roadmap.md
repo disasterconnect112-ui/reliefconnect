@@ -1,2 +1,2 @@
-- [ ] Test NGO registration, pending access, admin approval end to end
-- [ ] Test multi-option SOS + request access on mobile after security changes
+- [x] Test NGO registration, pending access, admin approval end to end
+- [x] Test multi-option SOS + request access on mobile after security changes
