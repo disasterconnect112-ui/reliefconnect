@@ -53,7 +53,7 @@ function Stat({ label, value }: { label: string; value: number | string }) {
 }
 
 function Dashboard() {
-  const { session, profile, isAdmin, loading } = useAuth();
+  const { session, profile, isAdmin, isNgo, loading } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/auth" });
@@ -61,7 +61,7 @@ function Dashboard() {
   if (!profile) return <AppShell><p className="text-muted-foreground">Loading…</p></AppShell>;
   return (
     <AppShell>
-      {isAdmin ? <AdminView /> : profile.role === "ngo" ? <NgoView profile={profile} /> : <VolunteerView profile={profile} />}
+      {isAdmin ? <AdminView /> : isNgo ? <NgoView profile={profile} /> : <>{profile.role === "ngo" && <p className="mb-4 rounded-lg border bg-muted p-3 text-sm">Your NGO account is awaiting admin approval. Until then you can help as a volunteer.</p>}<VolunteerView profile={profile} /></>}
     </AppShell>
   );
 }
@@ -242,9 +242,17 @@ function AdminView() {
   const { rows, load } = useRequests();
   const [people, setPeople] = useState<Profile[]>([]);
   const [tab, setTab] = useState<"requests" | "users">("requests");
+  const [ngoIds, setNgoIds] = useState<string[]>([]);
   const loadPeople = useCallback(() => {
     supabase.from("profiles").select("*").order("created_at", { ascending: false }).then(({ data }) => setPeople(data ?? []));
+    supabase.from("user_roles").select("user_id").eq("role", "ngo").then(({ data }) => setNgoIds((data ?? []).map((r) => r.user_id)));
   }, []);
+  const approve = async (id: string) => {
+    const { error } = await supabase.rpc("approve_ngo", { _user: id });
+    if (error) toast.error(error.message);
+    else toast.success("NGO approved");
+    loadPeople();
+  };
   useEffect(loadPeople, [loadPeople]);
   const vols = people.filter((p) => p.role === "volunteer");
   const ngos = people.filter((p) => p.role === "ngo");
@@ -299,7 +307,7 @@ function AdminView() {
                   <td className="uppercase">{p.role}</td>
                   <td>{p.mobile}</td>
                   <td>{p.points}</td>
-                  <td className="pr-3 text-right"><button onClick={() => remove(p.id)} className="text-destructive">Remove</button></td>
+                  <td className="pr-3 text-right">{p.role === "ngo" && !ngoIds.includes(p.id) && <button onClick={() => approve(p.id)} className="mr-3 font-semibold text-primary">Approve NGO</button>}<button onClick={() => remove(p.id)} className="text-destructive">Remove</button></td>
                 </tr>
               ))}
             </tbody>
