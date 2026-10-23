@@ -29,6 +29,13 @@
       "when": 1792632787306,
       "tag": "0003_sos_multi_types_severity",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792767256583,
+      "tag": "0004_harden_roles_and_policies",
+      "breakpoints": true
     }
   ]
 }
