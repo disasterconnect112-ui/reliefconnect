@@ -8,21 +8,24 @@ type AuthCtx = {
   session: Session | null;
   profile: Profile | null;
   isAdmin: boolean;
+  isNgo: boolean;
   loading: boolean;
   refresh: () => Promise<void>;
 };
-const Ctx = createContext<AuthCtx>({ session: null, profile: null, isAdmin: false, loading: true, refresh: async () => {} });
+const Ctx = createContext<AuthCtx>({ session: null, profile: null, isAdmin: false, isNgo: false, loading: true, refresh: async () => {} });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isNgo, setIsNgo] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async (s: Session | null) => {
     if (!s) {
       setProfile(null);
       setIsAdmin(false);
+      setIsNgo(false);
       setLoading(false);
       return;
     }
@@ -32,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ]);
     setProfile(p);
     setIsAdmin(!!roles?.some((r) => r.role === "admin"));
+    setIsNgo(!!roles?.some((r) => r.role === "ngo"));
     setLoading(false);
   }, []);
 
@@ -48,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [load]);
 
   return (
-    <Ctx.Provider value={{ session, profile, isAdmin, loading, refresh: () => load(session) }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ session, profile, isAdmin, isNgo, loading, refresh: () => load(session) }}>{children}</Ctx.Provider>
   );
 }
 
