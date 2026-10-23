@@ -298,7 +298,7 @@ function AdminView() {
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border bg-card">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm [&_td]:px-3 [&_td]:py-3 [&_th]:px-3 [&_th]:py-3 [&_td]:whitespace-nowrap">
             <thead className="bg-muted text-left"><tr><th className="p-3">Name</th><th>Role</th><th>Mobile</th><th>Points</th><th></th></tr></thead>
             <tbody>
               {people.map((p) => (
