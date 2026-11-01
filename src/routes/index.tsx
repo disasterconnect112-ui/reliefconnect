@@ -30,12 +30,12 @@ function Index() {
     <AppShell speakText={`${t("noLogin")} ${t("howItWorks")}: 1. ${t("step1")}. 2. ${t("step2")}. 3. ${t("step3")}.`}>
       <section className="flex flex-col items-center pt-6 text-center">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sos">{t("tagline")}</p>
-        <h1 className="mt-2 max-w-xl text-3xl font-black leading-tight md:text-5xl">Help is one tap away.</h1>
+        <h1 className="mt-2 max-w-xl text-3xl font-extrabold leading-tight md:text-5xl">Help is one tap away.</h1>
         <Link
           to="/sos"
           className="animate-sos shadow-sos mt-12 grid h-52 w-52 place-items-center rounded-full bg-sos text-sos-foreground md:h-64 md:w-64"
         >
-          <span className="font-display text-3xl font-black tracking-tight md:text-4xl">{t("sendSos")}</span>
+          <span className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">{t("sendSos")}</span>
         </Link>
         <p className="mt-10 text-muted-foreground">{t("noLogin")}</p>
         <Link to="/track" search={{ id: undefined }} className="mt-4 inline-flex items-center gap-2 rounded-full border bg-card px-5 py-2.5 font-medium hover:bg-muted">
@@ -48,7 +48,7 @@ function Index() {
         <ol className="mt-4 grid gap-3 md:grid-cols-3">
           {(["step1", "step2", "step3"] as const).map((s, i) => (
             <li key={s} className="rounded-xl border bg-card p-4">
-              <span className="font-display text-3xl font-black text-sos">{i + 1}</span>
+              <span className="font-display text-3xl font-extrabold text-sos">{i + 1}</span>
               <p className="mt-1 font-medium">{t(s)}</p>
             </li>
           ))}

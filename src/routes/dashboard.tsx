@@ -47,7 +47,7 @@ function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-xl border bg-card p-4">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 font-display text-3xl font-black">{value}</p>
+      <p className="mt-1 font-display text-3xl font-extrabold">{value}</p>
     </div>
   );
 }
@@ -119,7 +119,7 @@ function VolunteerView({ profile }: { profile: Profile }) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">Hi {profile.full_name || "volunteer"} 👋</h1>
+      <h1 className="text-2xl font-extrabold">Hi {profile.full_name || "volunteer"} 👋</h1>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Available" value={available.length} />
         <Stat label="Active" value={mine.length} />
@@ -213,7 +213,7 @@ function NgoView({ profile }: { profile: Profile }) {
   };
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">{profile.org_name || "NGO"} dashboard</h1>
+      <h1 className="text-2xl font-extrabold">{profile.org_name || "NGO"} dashboard</h1>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Active requests" value={active.length} />
         <Stat label="Assigned to us" value={mine.filter((r) => r.status !== "completed").length} />
@@ -271,7 +271,7 @@ function AdminView() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">Admin command center</h1>
+      <h1 className="text-2xl font-extrabold">Admin command center</h1>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Stat label="Requests" value={rows.length} />
         <Stat label="Volunteers" value={vols.length} />

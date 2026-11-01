@@ -123,7 +123,7 @@ function SosPage() {
       <AppShell>
         <div className="mx-auto max-w-md rounded-2xl border bg-card p-8 text-center">
           <CheckCircle2 className="mx-auto h-14 w-14 text-success" />
-          <h1 className="mt-3 text-2xl font-black">{t("sosSent")}</h1>
+          <h1 className="mt-3 text-2xl font-extrabold">{t("sosSent")}</h1>
           <p className="mt-2 text-muted-foreground">{t("saveId")}</p>
           <p className="mt-4 rounded-lg bg-muted py-3 font-mono text-2xl font-bold tracking-wider">{result.code}</p>
           <Link to="/track" search={{ id: result.code }} className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground">
@@ -137,7 +137,7 @@ function SosPage() {
     <AppShell speakText={`${t("chooseType")} ${EMERGENCY_TYPES.map((e) => t(e)).join(", ")}`}>
       <div className="mx-auto max-w-xl space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-black">{t("chooseType")}</h1>
+          <h1 className="text-2xl font-extrabold">{t("chooseType")}</h1>
           <button onClick={voice} className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm ${listening ? "bg-sos text-sos-foreground" : "bg-card"}`}>
             <Mic className="h-4 w-4" /> {listening ? "…" : "Voice"}
           </button>
@@ -199,7 +199,7 @@ function SosPage() {
           {severity && <div className="mt-2 flex items-center gap-2 text-sm">Priority: <PriorityBadge p={severity} /></div>}
         </div>
 
-        <button onClick={submit} disabled={sending} className="shadow-sos flex w-full items-center justify-center gap-2 rounded-xl bg-sos py-4 font-display text-xl font-black text-sos-foreground disabled:opacity-60">
+        <button onClick={submit} disabled={sending} className="shadow-sos flex w-full items-center justify-center gap-2 rounded-xl bg-sos py-4 font-display text-xl font-extrabold text-sos-foreground disabled:opacity-60">
           {sending && <Loader2 className="h-5 w-5 animate-spin" />} {t("confirmSos")}
         </button>
       </div>

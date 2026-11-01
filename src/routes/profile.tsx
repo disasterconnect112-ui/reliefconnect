@@ -91,11 +91,11 @@ function ProfilePage() {
   return (
     <AppShell>
       <div className="mx-auto max-w-xl space-y-5">
-        <h1 className="text-2xl font-black">{isNgo ? "My organization" : "My profile"}</h1>
+        <h1 className="text-2xl font-extrabold">{isNgo ? "My organization" : "My profile"}</h1>
         {!isNgo && (
           <div className="flex gap-3">
-            <div className="flex-1 rounded-xl border bg-card p-3 text-center"><p className="font-display text-2xl font-black">{profile.points}</p><p className="text-xs text-muted-foreground">Points</p></div>
-            <div className="flex-1 rounded-xl border bg-card p-3 text-center"><p className="font-display text-2xl font-black">{profile.completed_tasks}</p><p className="text-xs text-muted-foreground">Completed</p></div>
+            <div className="flex-1 rounded-xl border bg-card p-3 text-center"><p className="font-display text-2xl font-extrabold">{profile.points}</p><p className="text-xs text-muted-foreground">Points</p></div>
+            <div className="flex-1 rounded-xl border bg-card p-3 text-center"><p className="font-display text-2xl font-extrabold">{profile.completed_tasks}</p><p className="text-xs text-muted-foreground">Completed</p></div>
             <div className="flex-1 rounded-xl border bg-card p-3 text-center"><p className="text-xl">{badgesFor(profile).filter((b) => b.earned).map((b) => b.icon).join("") || "—"}</p><p className="text-xs text-muted-foreground">Badges</p></div>
           </div>
         )}
