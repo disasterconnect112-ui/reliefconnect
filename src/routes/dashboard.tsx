@@ -7,6 +7,9 @@ import { useI18n } from "@/lib/i18n";
 import { distanceKm } from "@/lib/geo";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { useServerFn } from "@tanstack/react-start";
+import { Sparkles, Loader2 } from "lucide-react";
+import { summarizeOpenRequests } from "@/lib/sos-ai.functions";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -144,6 +147,7 @@ function VolunteerView({ profile }: { profile: Profile }) {
           </div>
         </section>
       )}
+      <AiTriage rows={available} onAccept={(id) => act(id, "accept")} />
       <section>
         <h2 className="mb-3 text-lg font-bold">Available tasks</h2>
         {sortedAvail.length === 0 && <p className="text-sm text-muted-foreground">No open requests right now.</p>}
@@ -315,5 +319,76 @@ function AdminView() {
         </div>
       )}
     </div>
+  );
+}
+
+type Summary = { id: string; urgency: "critical" | "medium" | "low"; summary: string; needs: string[]; reason: string };
+const URG: Record<string, number> = { critical: 0, medium: 1, low: 2 };
+
+function AiTriage({ rows, onAccept }: { rows: Req[]; onAccept: (id: string) => Promise<void> }) {
+  const run = useServerFn(summarizeOpenRequests);
+  const [items, setItems] = useState<Summary[] | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<string | null>(null);
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  const go = async () => {
+    setBusy(true);
+    setErr(null);
+    try {
+      const res = await run();
+      setItems([...res.items].sort((a, b) => URG[a.urgency] - URG[b.urgency]));
+      setErr(res.error);
+    } catch {
+      setErr("AI summary is unavailable right now.");
+    }
+    setBusy(false);
+  };
+  const shown = (items ?? []).filter((i) => byId.has(i.id));
+  return (
+    <section className="rounded-2xl border bg-card p-4 shadow-soft">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="flex items-center gap-2 text-lg font-bold"><Sparkles className="h-5 w-5 text-primary" /> AI triage</h2>
+          <p className="text-sm text-muted-foreground">AI-powered summary of open requests by urgency and needs. Always check the details before accepting.</p>
+        </div>
+        <button onClick={go} disabled={busy || rows.length === 0} className={`${btn} flex items-center gap-2 bg-primary text-primary-foreground disabled:opacity-50`}>
+          {busy && <Loader2 className="h-4 w-4 animate-spin" />} {items ? "Refresh summary" : "Summarize open requests"}
+        </button>
+      </div>
+      {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
+      {items && !err && shown.length === 0 && <p className="mt-3 text-sm text-muted-foreground">No open requests to summarize.</p>}
+      <ul className="mt-3 space-y-2">
+        {shown.map((i) => {
+          const r = byId.get(i.id)!;
+          return (
+            <li key={i.id} className="rounded-xl border p-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">{r.request_code}</span>
+                <PriorityBadge p={i.urgency} />
+              </div>
+              <p className="mt-1 font-medium">{i.summary}</p>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {i.needs.map((n) => <span key={n} className="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold text-secondary-foreground">{n}</span>)}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">Why: {i.reason}</p>
+              {confirming === i.id ? (
+                <div className="mt-2 rounded-lg bg-muted p-3 text-sm">
+                  <p><b>Victim reported:</b> {r.emergency_type.split(",").join(", ")} · severity {r.priority}{r.people_count ? ` · ${r.people_count} people` : ""}</p>
+                  {r.description && <p className="mt-1">"{r.description}"</p>}
+                  <p className="mt-2 font-semibold">Accept this task?</p>
+                  <div className="mt-2 flex gap-2">
+                    <button className={`${btn} bg-sos text-sos-foreground`} onClick={async () => { setConfirming(null); await onAccept(i.id); }}>Yes, accept</button>
+                    <button className={`${btn} border bg-card`} onClick={() => setConfirming(null)}>Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <button className={`${btn} mt-2 border`} onClick={() => setConfirming(i.id)}>Review & accept</button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
