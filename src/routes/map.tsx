@@ -53,7 +53,7 @@ function MapPage() {
   const fallback = <div className="h-[480px] animate-pulse rounded-xl bg-muted" />;
   return (
     <AppShell>
-      <h1 className="mb-3 text-2xl font-black">Live map</h1>
+      <h1 className="mb-3 text-2xl font-extrabold">Live map</h1>
       <div className="mb-3 flex flex-wrap gap-3 text-sm">
         {LEGEND.map(([c, l]) => (
           <span key={l} className="flex items-center gap-1.5"><span className={`h-3 w-3 rounded-full ${c}`} />{l}</span>

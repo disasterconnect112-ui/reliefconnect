@@ -55,7 +55,7 @@ function TrackPage() {
   return (
     <AppShell speakText={res ? `${res.request_code}. ${t(res.status)}` : t("enterId")}>
       <div className="mx-auto max-w-md">
-        <h1 className="text-2xl font-black">{t("track")}</h1>
+        <h1 className="text-2xl font-extrabold">{t("track")}</h1>
         <form
           className="mt-4 flex gap-2"
           onSubmit={(e) => {

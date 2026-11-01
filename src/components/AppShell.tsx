@@ -29,11 +29,11 @@ export function AppShell({ children, speakText }: { children: ReactNode; speakTe
     <div className="min-h-screen pb-20 md:pb-0">
       <header className="sticky top-0 z-[1000] border-b bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-          <Link to="/" className="flex items-center gap-2 font-display text-lg font-black">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-sos text-sos-foreground">
-              <Siren className="h-4 w-4" />
+          <Link to="/" className="flex items-center gap-2 font-display text-lg font-extrabold">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-deep text-deep-foreground">
+              <Siren className="h-4 w-4 text-sos" />
             </span>
-            {t("appName")}
+            <span className="hidden min-[400px]:inline">{t("appName")}</span>
           </Link>
           <nav className="ml-6 hidden gap-1 md:flex">
             {nav.map((n) => (
@@ -41,7 +41,7 @@ export function AppShell({ children, speakText }: { children: ReactNode; speakTe
                 key={n.to}
                 to={n.to}
                 className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                activeProps={{ className: "bg-muted text-foreground" }}
+                activeProps={{ className: "bg-accent text-accent-foreground" }}
                 activeOptions={{ exact: true }}
               >
                 {n.label}
@@ -49,8 +49,8 @@ export function AppShell({ children, speakText }: { children: ReactNode; speakTe
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-1">
-            <label className="flex items-center gap-1 rounded-md border px-2 py-1 text-sm">
-              <Globe className="h-4 w-4 text-muted-foreground" />
+            <label className="flex items-center gap-1 rounded-full border bg-card px-2.5 py-1 text-sm">
+              <Globe className="hidden h-4 w-4 text-muted-foreground sm:block" />
               <select
                 aria-label="Language"
                 value={lang}
@@ -67,7 +67,7 @@ export function AppShell({ children, speakText }: { children: ReactNode; speakTe
             <button
               aria-label="Read aloud"
               onClick={() => speak(speakText ?? `${t("appName")}. ${t("tagline")}. ${t("noLogin")}`, lang)}
-              className="rounded-md border p-1.5 hover:bg-muted"
+              className="rounded-full border bg-card p-1.5 hover:bg-muted"
             >
               <Volume2 className="h-4 w-4" />
             </button>
@@ -78,7 +78,7 @@ export function AppShell({ children, speakText }: { children: ReactNode; speakTe
                   await supabase.auth.signOut();
                   navigate({ to: "/" });
                 }}
-                className="rounded-md border p-1.5 hover:bg-muted"
+                className="rounded-full border bg-card p-1.5 hover:bg-muted"
               >
                 <LogOut className="h-4 w-4" />
               </button>
@@ -94,7 +94,7 @@ export function AppShell({ children, speakText }: { children: ReactNode; speakTe
             key={n.to}
             to={n.to}
             className="flex flex-col items-center gap-0.5 py-2 text-xs text-muted-foreground"
-            activeProps={{ className: "text-sos font-semibold" }}
+            activeProps={{ className: "text-primary font-semibold" }}
             activeOptions={{ exact: true }}
           >
             <n.icon className="h-5 w-5" />
@@ -108,7 +108,7 @@ export function AppShell({ children, speakText }: { children: ReactNode; speakTe
 
 export function PriorityBadge({ p }: { p: string }) {
   const cls = p === "critical" ? "bg-critical text-sos-foreground" : p === "high" || p === "medium" ? "bg-high text-foreground" : "bg-normal text-sos-foreground";
-  return <span className={`rounded px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${cls}`}>{p}</span>;
+  return <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${cls}`}>{p}</span>;
 }
 
 function OfflineBar() {

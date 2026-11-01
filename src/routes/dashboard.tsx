@@ -45,9 +45,9 @@ function useRequests() {
 
 function Stat({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="rounded-xl border bg-card p-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 font-display text-3xl font-black">{value}</p>
+    <div className="rounded-2xl bg-card p-4 shadow-soft first:bg-gradient-deep first:text-deep-foreground">
+      <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{label}</p>
+      <p className="mt-1 font-display text-3xl font-extrabold">{value}</p>
     </div>
   );
 }
@@ -70,7 +70,7 @@ function RequestCard({ r, here, children }: { r: Req; here: { lat: number; lng: 
   const { t } = useI18n();
   const dist = here && r.latitude != null && r.longitude != null ? distanceKm(here, { lat: r.latitude, lng: r.longitude }) : null;
   return (
-    <div className="rounded-xl border bg-card p-4">
+    <div className={`rounded-2xl border-l-4 bg-card p-4 shadow-soft ${r.priority === "critical" ? "border-l-critical" : r.priority === "medium" || r.priority === "high" ? "border-l-high" : "border-l-normal"}`}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-bold">{r.emergency_type.split(",").map((x) => t(x as Parameters<typeof t>[0])).join(", ")}</span>
         <PriorityBadge p={r.priority} />
@@ -88,7 +88,7 @@ function RequestCard({ r, here, children }: { r: Req; here: { lat: number; lng: 
   );
 }
 
-const btn = "rounded-lg px-3 py-1.5 text-sm font-semibold";
+const btn = "rounded-full px-4 py-1.5 text-sm font-semibold";
 
 function useHere() {
   const [here, setHere] = useState<{ lat: number; lng: number } | null>(null);
@@ -119,7 +119,7 @@ function VolunteerView({ profile }: { profile: Profile }) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">Hi {profile.full_name || "volunteer"} 👋</h1>
+      <h1 className="text-2xl font-extrabold">Hi {profile.full_name || "volunteer"} 👋</h1>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Available" value={available.length} />
         <Stat label="Active" value={mine.length} />
@@ -128,7 +128,7 @@ function VolunteerView({ profile }: { profile: Profile }) {
       </div>
       {mine.length > 0 && (
         <section>
-          <h2 className="mb-2 font-bold">My active tasks</h2>
+          <h2 className="mb-3 text-lg font-bold">My active tasks</h2>
           <div className="grid gap-3 md:grid-cols-2">
             {mine.map((r) => (
               <RequestCard key={r.id} r={r} here={here}>
@@ -145,7 +145,7 @@ function VolunteerView({ profile }: { profile: Profile }) {
         </section>
       )}
       <section>
-        <h2 className="mb-2 font-bold">Available tasks</h2>
+        <h2 className="mb-3 text-lg font-bold">Available tasks</h2>
         {sortedAvail.length === 0 && <p className="text-sm text-muted-foreground">No open requests right now.</p>}
         <div className="grid gap-3 md:grid-cols-2">
           {sortedAvail.map((r) => (
@@ -156,7 +156,7 @@ function VolunteerView({ profile }: { profile: Profile }) {
         </div>
       </section>
       <section>
-        <h2 className="mb-2 font-bold">Achievements</h2>
+        <h2 className="mb-3 text-lg font-bold">Achievements</h2>
         <div className="flex flex-wrap gap-2">
           {badgesFor(profile).map((b) => (
             <span key={b.name} title={b.desc} className={`rounded-full border px-3 py-1 text-sm ${b.earned ? "bg-accent font-semibold" : "opacity-40"}`}>
@@ -168,8 +168,8 @@ function VolunteerView({ profile }: { profile: Profile }) {
       </section>
       {done.length > 0 && (
         <section>
-          <h2 className="mb-2 font-bold">Task history</h2>
-          <ul className="divide-y rounded-xl border bg-card text-sm">
+          <h2 className="mb-3 text-lg font-bold">Task history</h2>
+          <ul className="divide-y rounded-2xl border bg-card text-sm">
             {done.map((r) => (
               <li key={r.id} className="flex justify-between p-3"><span>{r.request_code}</span><span className="text-muted-foreground">{r.completed_at && new Date(r.completed_at).toLocaleDateString()}</span></li>
             ))}
@@ -213,7 +213,7 @@ function NgoView({ profile }: { profile: Profile }) {
   };
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">{profile.org_name || "NGO"} dashboard</h1>
+      <h1 className="text-2xl font-extrabold">{profile.org_name || "NGO"} dashboard</h1>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Active requests" value={active.length} />
         <Stat label="Assigned to us" value={mine.filter((r) => r.status !== "completed").length} />
@@ -225,7 +225,7 @@ function NgoView({ profile }: { profile: Profile }) {
         <Link to="/map" className={`${btn} border`}>Map</Link>
       </div>
       <section>
-        <h2 className="mb-2 font-bold">Emergency requests</h2>
+        <h2 className="mb-3 text-lg font-bold">Emergency requests</h2>
         <div className="grid gap-3 md:grid-cols-2">
           {active.map((r) => (
             <RequestCard key={r.id} r={r} here={here}>
@@ -271,7 +271,7 @@ function AdminView() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black">Admin command center</h1>
+      <h1 className="text-2xl font-extrabold">Admin command center</h1>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Stat label="Requests" value={rows.length} />
         <Stat label="Volunteers" value={vols.length} />
@@ -297,7 +297,7 @@ function AdminView() {
           ))}
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border bg-card">
+        <div className="overflow-x-auto rounded-2xl border bg-card">
           <table className="w-full text-sm [&_td]:px-3 [&_td]:py-3 [&_th]:px-3 [&_th]:py-3 [&_td]:whitespace-nowrap">
             <thead className="bg-muted text-left"><tr><th className="p-3">Name</th><th>Role</th><th>Mobile</th><th>Points</th><th></th></tr></thead>
             <tbody>

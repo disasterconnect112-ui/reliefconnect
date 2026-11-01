@@ -4,7 +4,7 @@ import { Loader2, MapPin, Mic, CheckCircle2, Stethoscope, LifeBuoy, Baby, Access
 import { toast } from "sonner";
 import { AppShell, PriorityBadge } from "@/components/AppShell";
 import { useI18n } from "@/lib/i18n";
-import { EMERGENCY_TYPES, listen, matchEmergency, priorityFor, speak, type EmergencyType } from "@/lib/voice";
+import { EMERGENCY_TYPES, listen, matchEmergency, speak, type EmergencyType } from "@/lib/voice";
 import { enqueueSos, sendSos } from "@/lib/offline";
 
 export const Route = createFileRoute("/sos")({
@@ -123,7 +123,7 @@ function SosPage() {
       <AppShell>
         <div className="mx-auto max-w-md rounded-2xl border bg-card p-8 text-center">
           <CheckCircle2 className="mx-auto h-14 w-14 text-success" />
-          <h1 className="mt-3 text-2xl font-black">{t("sosSent")}</h1>
+          <h1 className="mt-3 text-2xl font-extrabold">{t("sosSent")}</h1>
           <p className="mt-2 text-muted-foreground">{t("saveId")}</p>
           <p className="mt-4 rounded-lg bg-muted py-3 font-mono text-2xl font-bold tracking-wider">{result.code}</p>
           <Link to="/track" search={{ id: result.code }} className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground">
@@ -135,32 +135,32 @@ function SosPage() {
 
   return (
     <AppShell speakText={`${t("chooseType")} ${EMERGENCY_TYPES.map((e) => t(e)).join(", ")}`}>
-      <div className="mx-auto max-w-xl space-y-6">
+      <div className="mx-auto max-w-xl space-y-5 pb-24 md:pb-0">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-black">{t("chooseType")}</h1>
+          <h1 className="text-2xl font-extrabold">{t("chooseType")}</h1>
           <button onClick={voice} className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm ${listening ? "bg-sos text-sos-foreground" : "bg-card"}`}>
             <Mic className="h-4 w-4" /> {listening ? "…" : "Voice"}
           </button>
         </div>
         <p className="-mt-4 text-sm text-muted-foreground">{t("multiHint")} · {t("voiceHint")}</p>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2.5">
           {EMERGENCY_TYPES.map((e) => (
             <button
               key={e}
               onClick={() => toggle(e)}
               aria-pressed={types.includes(e)}
-              className={`flex flex-col items-center gap-1 rounded-xl border-2 p-3 text-center text-sm font-semibold transition ${types.includes(e) ? "border-sos bg-sos/10" : "border-transparent bg-card"}`}
+              className={`flex flex-col items-center gap-1 rounded-2xl border-2 p-3 text-center text-sm font-semibold transition ${types.includes(e) ? "border-primary bg-accent text-accent-foreground" : "border-transparent bg-card shadow-soft"}`}
             >
               {(() => { const I = ICONS[e]; return <I className="h-7 w-7" />; })()}
               {t(e)}
-              {priorityFor(e) === "critical" && <span className="text-[10px] font-bold uppercase text-critical">critical</span>}
+              
             </button>
           ))}
         </div>
 
-        <div className="rounded-xl border bg-card p-4">
-          <p className="font-semibold">{t("location")} *</p>
+        <div className="rounded-2xl bg-card p-4 shadow-soft">
+          <p className="flex items-center gap-2 font-semibold"><span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-xs text-primary-foreground">1</span>{t("location")} *</p>
           {loc ? (
             <p className="mt-2 flex items-center gap-2 text-sm text-success">
               <MapPin className="h-4 w-4" /> {loc.lat.toFixed(5)}, {loc.lng.toFixed(5)}
@@ -172,7 +172,7 @@ function SosPage() {
           )}
         </div>
 
-        <details className="rounded-xl border bg-card p-4">
+        <details className="rounded-2xl bg-card p-4 shadow-soft">
           <summary className="cursor-pointer font-semibold">{t("optional")}</summary>
           <div className="mt-3 grid gap-3">
             <input className="rounded-lg border bg-background px-3 py-2" placeholder={t("name")} maxLength={100} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -182,8 +182,8 @@ function SosPage() {
           </div>
         </details>
 
-        <div className="rounded-xl border bg-card p-4">
-          <p className="font-semibold">{t("severity")} *</p>
+        <div className="rounded-2xl bg-card p-4 shadow-soft">
+          <p className="flex items-center gap-2 font-semibold"><span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-xs text-primary-foreground">2</span>{t("severity")} *</p>
           <div className="mt-2 grid grid-cols-3 gap-2">
             {(["critical", "medium", "low"] as const).map((s) => (
               <button
@@ -199,9 +199,11 @@ function SosPage() {
           {severity && <div className="mt-2 flex items-center gap-2 text-sm">Priority: <PriorityBadge p={severity} /></div>}
         </div>
 
-        <button onClick={submit} disabled={sending} className="shadow-sos flex w-full items-center justify-center gap-2 rounded-xl bg-sos py-4 font-display text-xl font-black text-sos-foreground disabled:opacity-60">
+        <div className="fixed inset-x-0 bottom-[3.75rem] z-[999] border-t bg-background/95 p-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
+        <button onClick={submit} disabled={sending} className="mx-auto flex w-full max-w-xl items-center justify-center gap-2 rounded-2xl bg-sos py-4 font-display text-xl font-extrabold text-sos-foreground disabled:opacity-60">
           {sending && <Loader2 className="h-5 w-5 animate-spin" />} {t("confirmSos")}
         </button>
+        </div>
       </div>
     </AppShell>
   );
