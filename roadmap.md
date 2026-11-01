@@ -1,2 +1,5 @@
 - [x] Test NGO registration, pending access, admin approval end to end
 - [x] Test multi-option SOS + request access on mobile after security changes
+- [ ] Promote user's account to admin
+- [ ] Custom domain for ReliefConnect (needs user's domain choice)
+- [ ] AI summary of open SOS requests in volunteer dashboard, confirm before acting
