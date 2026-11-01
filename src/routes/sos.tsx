@@ -4,7 +4,7 @@ import { Loader2, MapPin, Mic, CheckCircle2, Stethoscope, LifeBuoy, Baby, Access
 import { toast } from "sonner";
 import { AppShell, PriorityBadge } from "@/components/AppShell";
 import { useI18n } from "@/lib/i18n";
-import { EMERGENCY_TYPES, listen, matchEmergency, priorityFor, speak, type EmergencyType } from "@/lib/voice";
+import { EMERGENCY_TYPES, listen, matchEmergency, speak, type EmergencyType } from "@/lib/voice";
 import { enqueueSos, sendSos } from "@/lib/offline";
 
 export const Route = createFileRoute("/sos")({
