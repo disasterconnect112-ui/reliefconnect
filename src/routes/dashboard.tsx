@@ -208,19 +208,14 @@ function NgoView({ profile }: { profile: Profile }) {
   useEffect(() => {
     supabase.from("resources").select("quantity").eq("owner_id", profile.id).then(({ data }) => setResCount((data ?? []).reduce((s, r) => s + r.quantity, 0)));
   }, [profile.id]);
-  const active = rows.filter((r) => r.status !== "completed");
   const mine = rows.filter((r) => r.ngo_id === profile.id);
-  const claim = async (id: string) => {
-    const { error } = await supabase.from("emergency_requests").update({ ngo_id: profile.id }).eq("id", id);
-    if (error) toast.error(error.message);
-    load();
-  };
+  const active = mine.filter((r) => r.status !== "completed");
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-extrabold">{profile.org_name || "NGO"} dashboard</h1>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Active requests" value={active.length} />
-        <Stat label="Assigned to us" value={mine.filter((r) => r.status !== "completed").length} />
+        <Stat label="Assigned to us" value={mine.length} />
+        <Stat label="Active" value={active.length} />
         <Stat label="Completed" value={mine.filter((r) => r.status === "completed").length} />
         <Stat label="Resources" value={resCount} />
       </div>
@@ -229,11 +224,12 @@ function NgoView({ profile }: { profile: Profile }) {
         <Link to="/map" className={`${btn} border`}>Map</Link>
       </div>
       <section>
-        <h2 className="mb-3 text-lg font-bold">Emergency requests</h2>
+        <h2 className="mb-3 text-lg font-bold">Requests assigned to your organization</h2>
+        {active.length === 0 && <p className="text-sm text-muted-foreground">No requests assigned yet. An admin will assign requests to your organization.</p>}
         <div className="grid gap-3 md:grid-cols-2">
           {active.map((r) => (
             <RequestCard key={r.id} r={r} here={here}>
-              {r.ngo_id === profile.id ? <StatusSelect r={r} onDone={load} /> : !r.ngo_id && <button className={`${btn} bg-primary text-primary-foreground`} onClick={() => claim(r.id)}>Coordinate this</button>}
+              <StatusSelect r={r} onDone={load} />
             </RequestCard>
           ))}
         </div>
@@ -269,10 +265,17 @@ function AdminView() {
   useEffect(loadPeople, [loadPeople]);
   const vols = people.filter((p) => p.role === "volunteer");
   const ngos = people.filter((p) => p.role === "ngo");
+  const approvedNgos = ngos.filter((p) => ngoIds.includes(p.id));
 
   const assign = async (id: string, vid: string) => {
     const { error } = await supabase.from("emergency_requests").update({ volunteer_id: vid || null, status: vid ? "assigned" : "received" }).eq("id", id);
     if (error) toast.error(error.message);
+    load();
+  };
+  const assignNgo = async (id: string, nid: string) => {
+    const { error } = await supabase.from("emergency_requests").update({ ngo_id: nid || null }).eq("id", id);
+    if (error) toast.error(error.message);
+    else toast.success(nid ? "NGO assigned" : "NGO removed");
     load();
   };
   const remove = async (id: string) => {
@@ -302,9 +305,13 @@ function AdminView() {
           {rows.map((r) => (
             <RequestCard key={r.id} r={r} here={null}>
               <StatusSelect r={r} onDone={load} />
-              <select value={r.volunteer_id ?? ""} onChange={(e) => assign(r.id, e.target.value)} className="rounded-lg border bg-background px-2 py-1.5 text-sm">
-                <option value="">Unassigned</option>
+              <select aria-label="Assign volunteer" value={r.volunteer_id ?? ""} onChange={(e) => assign(r.id, e.target.value)} className="rounded-lg border bg-background px-2 py-1.5 text-sm">
+                <option value="">No volunteer</option>
                 {vols.map((v) => <option key={v.id} value={v.id}>{v.full_name || v.id.slice(0, 6)}</option>)}
+              </select>
+              <select aria-label="Assign NGO" value={r.ngo_id ?? ""} onChange={(e) => assignNgo(r.id, e.target.value)} className="rounded-lg border bg-background px-2 py-1.5 text-sm">
+                <option value="">No NGO</option>
+                {approvedNgos.map((n) => <option key={n.id} value={n.id}>{n.org_name || n.full_name || n.id.slice(0, 6)}</option>)}
               </select>
             </RequestCard>
           ))}
