@@ -251,10 +251,19 @@ function AdminView() {
     supabase.from("profiles").select("*").order("created_at", { ascending: false }).then(({ data }) => setPeople(data ?? []));
     supabase.from("user_roles").select("user_id").eq("role", "ngo").then(({ data }) => setNgoIds((data ?? []).map((r) => r.user_id)));
   }, []);
+  const { session } = useAuth();
+  const me = session?.user.id;
   const approve = async (id: string) => {
     const { error } = await supabase.rpc("approve_ngo", { _user: id });
     if (error) toast.error(error.message);
     else toast.success("NGO approved");
+    loadPeople();
+  };
+  const revoke = async (id: string) => {
+    if (!confirm("Remove NGO access from this account? It will go back to volunteer access.")) return;
+    const { error } = await supabase.rpc("revoke_ngo", { _user: id });
+    if (error) toast.error(error.message);
+    else toast.success("NGO access removed");
     loadPeople();
   };
   useEffect(loadPeople, [loadPeople]);
@@ -308,10 +317,14 @@ function AdminView() {
               {people.map((p) => (
                 <tr key={p.id} className="border-t">
                   <td className="p-3">{p.org_name || p.full_name || "—"}</td>
-                  <td className="uppercase">{p.role}</td>
+                  <td className="uppercase">{p.id === me ? "admin (you)" : p.role === "ngo" ? (ngoIds.includes(p.id) ? "ngo · approved" : "ngo · pending") : p.role}</td>
                   <td>{p.mobile}</td>
                   <td>{p.points}</td>
-                  <td className="pr-3 text-right">{p.role === "ngo" && !ngoIds.includes(p.id) && <button onClick={() => approve(p.id)} className="mr-3 font-semibold text-primary">Approve NGO</button>}<button onClick={() => remove(p.id)} className="text-destructive">Remove</button></td>
+                  <td className="pr-3 text-right">
+                    {p.role === "ngo" && !ngoIds.includes(p.id) && <button onClick={() => approve(p.id)} className="mr-3 font-semibold text-primary">Approve NGO</button>}
+                    {ngoIds.includes(p.id) && <button onClick={() => revoke(p.id)} className="mr-3 font-semibold text-muted-foreground">Revoke NGO</button>}
+                    {p.id !== me && <button onClick={() => remove(p.id)} className="text-destructive">Remove</button>}
+                  </td>
                 </tr>
               ))}
             </tbody>
