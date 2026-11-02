@@ -337,7 +337,7 @@ function AiTriage({ rows, onAccept }: { rows: Req[]; onAccept: (id: string) => P
     setErr(null);
     try {
       const res = await run();
-      setItems([...res.items].sort((a, b) => URG[a.urgency] - URG[b.urgency]));
+      setItems([...res.items].sort((a, b) => (URG[a.urgency] ?? 3) - (URG[b.urgency] ?? 3)));
       setErr(res.error);
     } catch {
       setErr("AI summary is unavailable right now.");
