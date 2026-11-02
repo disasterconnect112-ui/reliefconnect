@@ -16,3 +16,4 @@
 - UI strings live in src/lib/i18n.tsx as one row per key across all languages; keep the language order fixed.
 - Leaflet is loaded only via React.lazy behind ClientOnly (SSR-safe).
 - NGO privileges come only from an admin approving via the approve_ngo RPC; signup always grants volunteer, so self-chosen roles never grant access.
+- AI features run in *.server.ts helpers called from requireSupabaseAuth server functions; prompts and the AI key never reach the browser.
