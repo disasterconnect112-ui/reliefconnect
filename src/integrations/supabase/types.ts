@@ -241,6 +241,7 @@ export type Database = {
       }
       is_responder: { Args: { _uid: string }; Returns: boolean }
       priority_for: { Args: { t: string }; Returns: string }
+      revoke_ngo: { Args: { _user: string }; Returns: undefined }
       submit_sos: {
         Args: {
           _description: string
