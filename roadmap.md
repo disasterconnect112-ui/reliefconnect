@@ -1,5 +1,5 @@
 - [x] Test NGO registration, pending access, admin approval end to end
 - [x] Test multi-option SOS + request access on mobile after security changes
 - [x] Promote user's account to admin
-- [ ] Custom domain for ReliefConnect (needs user's domain choice)
+- [ ] Custom domain reliefconnect.in — blocked: needs paid plan
 - [x] AI summary of open SOS requests in volunteer dashboard, confirm before acting
