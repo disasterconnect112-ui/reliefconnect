@@ -232,6 +232,10 @@ export type Database = {
     }
     Functions: {
       approve_ngo: { Args: { _user: string }; Returns: undefined }
+      can_see_request: {
+        Args: { _ngo: string; _uid: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
