@@ -3,6 +3,7 @@ import { ClientOnly } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/lib/auth";
+import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import type { MapPoint } from "@/lib/map-types";
 
@@ -21,15 +22,16 @@ export const Route = createFileRoute("/map")({
 });
 
 const LEGEND = [
-  ["bg-critical", "Emergency request"],
-  ["bg-success", "Volunteer"],
-  ["bg-normal", "NGO"],
-  ["bg-chart-5", "Shelter"],
-  ["bg-high", "Relief camp"],
+  ["bg-critical", "lgRequest"],
+  ["bg-success", "volunteer"],
+  ["bg-normal", "ngo"],
+  ["bg-chart-5", "shelter"],
+  ["bg-high", "reliefCamp"],
 ];
 
 function MapPage() {
   const { session, loading } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [points, setPoints] = useState<MapPoint[]>([]);
   useEffect(() => {
@@ -53,10 +55,10 @@ function MapPage() {
   const fallback = <div className="h-[480px] animate-pulse rounded-xl bg-muted" />;
   return (
     <AppShell>
-      <h1 className="mb-3 text-2xl font-extrabold">Live map</h1>
+      <h1 className="mb-3 text-2xl font-extrabold">{t("liveMap")}</h1>
       <div className="mb-3 flex flex-wrap gap-3 text-sm">
         {LEGEND.map(([c, l]) => (
-          <span key={l} className="flex items-center gap-1.5"><span className={`h-3 w-3 rounded-full ${c}`} />{l}</span>
+          <span key={l} className="flex items-center gap-1.5"><span className={`h-3 w-3 rounded-full ${c}`} />{t(l)}</span>
         ))}
       </div>
       <ClientOnly fallback={fallback}>

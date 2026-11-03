@@ -57,14 +57,15 @@ function Stat({ label, value }: { label: string; value: number | string }) {
 
 function Dashboard() {
   const { session, profile, isAdmin, isNgo, loading } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/auth" });
   }, [loading, session, navigate]);
-  if (!profile) return <AppShell><p className="text-muted-foreground">Loading…</p></AppShell>;
+  if (!profile) return <AppShell><p className="text-muted-foreground">{t("loading")}</p></AppShell>;
   return (
     <AppShell>
-      {isAdmin ? <AdminView /> : isNgo ? <NgoView profile={profile} /> : <>{profile.role === "ngo" && <p className="mb-4 rounded-lg border bg-muted p-3 text-sm">Your NGO account is awaiting admin approval. Until then you can help as a volunteer.</p>}<VolunteerView profile={profile} /></>}
+      {isAdmin ? <AdminView /> : isNgo ? <NgoView profile={profile} /> : <>{profile.role === "ngo" && <p className="mb-4 rounded-lg border bg-muted p-3 text-sm">{t("ngoPending")}</p>}<VolunteerView profile={profile} /></>}
     </AppShell>
   );
 }
@@ -79,12 +80,12 @@ function RequestCard({ r, here, children }: { r: Req; here: { lat: number; lng: 
         <PriorityBadge p={r.priority} />
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        {r.request_code} · {new Date(r.created_at).toLocaleString()} {dist != null && `· ${dist.toFixed(1)} km away`}
+        {r.request_code} · {new Date(r.created_at).toLocaleString()} {dist != null && `· ${dist.toFixed(1)} ${t("kmAway")}`}
       </p>
       {r.description && <p className="mt-2 text-sm">{r.description}</p>}
       <p className="mt-1 text-xs text-muted-foreground">
-        {r.people_count ? `${r.people_count} people · ` : ""}
-        {r.name ?? ""} {r.mobile ? `· ${r.mobile}` : ""} · Status: <b>{t(r.status)}</b>
+        {r.people_count ? `${r.people_count} ${t("peopleWord")} · ` : ""}
+        {r.name ?? ""} {r.mobile ? `· ${r.mobile}` : ""} · {t("status")}: <b>{t(r.status)}</b>
       </p>
       {children && <div className="mt-3 flex flex-wrap gap-2">{children}</div>}
     </div>
@@ -104,6 +105,7 @@ function useHere() {
 function VolunteerView({ profile }: { profile: Profile }) {
   const { rows, load } = useRequests();
   const { refresh } = useAuth();
+  const { t } = useI18n();
   const here = useHere();
   const available = rows.filter((r) => r.status === "received" && !r.volunteer_id);
   const mine = rows.filter((r) => r.volunteer_id === profile.id && r.status !== "completed");
@@ -122,25 +124,25 @@ function VolunteerView({ profile }: { profile: Profile }) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold">Hi {profile.full_name || "volunteer"} 👋</h1>
+      <h1 className="text-2xl font-extrabold">{t("hi")} {profile.full_name || t("volunteer")} 👋</h1>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Available" value={available.length} />
-        <Stat label="Active" value={mine.length} />
-        <Stat label="Completed" value={profile.completed_tasks} />
-        <Stat label="Points" value={profile.points} />
+        <Stat label={t("available")} value={available.length} />
+        <Stat label={t("active")} value={mine.length} />
+        <Stat label={t("completed")} value={profile.completed_tasks} />
+        <Stat label={t("points")} value={profile.points} />
       </div>
       {mine.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-bold">My active tasks</h2>
+          <h2 className="mb-3 text-lg font-bold">{t("myActive")}</h2>
           <div className="grid gap-3 md:grid-cols-2">
             {mine.map((r) => (
               <RequestCard key={r.id} r={r} here={here}>
-                {r.status === "assigned" && <button className={`${btn} bg-primary text-primary-foreground`} onClick={() => act(r.id, "on_the_way")}>Start — on the way</button>}
-                {r.status === "on_the_way" && <button className={`${btn} bg-primary text-primary-foreground`} onClick={() => act(r.id, "delivered")}>Help delivered</button>}
-                {r.status === "delivered" && <button className={`${btn} bg-success text-sos-foreground`} onClick={() => act(r.id, "complete")}>Complete</button>}
-                {r.status === "assigned" && <button className={`${btn} border`} onClick={() => act(r.id, "reject")}>Release</button>}
+                {r.status === "assigned" && <button className={`${btn} bg-primary text-primary-foreground`} onClick={() => act(r.id, "on_the_way")}>{t("startOnWay")}</button>}
+                {r.status === "on_the_way" && <button className={`${btn} bg-primary text-primary-foreground`} onClick={() => act(r.id, "delivered")}>{t("delivered")}</button>}
+                {r.status === "delivered" && <button className={`${btn} bg-success text-sos-foreground`} onClick={() => act(r.id, "complete")}>{t("complete")}</button>}
+                {r.status === "assigned" && <button className={`${btn} border`} onClick={() => act(r.id, "reject")}>{t("release")}</button>}
                 {r.latitude != null && (
-                  <a className={`${btn} border`} target="_blank" rel="noreferrer" href={`https://www.openstreetmap.org/?mlat=${r.latitude}&mlon=${r.longitude}#map=16/${r.latitude}/${r.longitude}`}>Directions</a>
+                  <a className={`${btn} border`} target="_blank" rel="noreferrer" href={`https://www.openstreetmap.org/?mlat=${r.latitude}&mlon=${r.longitude}#map=16/${r.latitude}/${r.longitude}`}>{t("directions")}</a>
                 )}
               </RequestCard>
             ))}
@@ -149,18 +151,18 @@ function VolunteerView({ profile }: { profile: Profile }) {
       )}
       <AiTriage rows={available} onAccept={(id) => act(id, "accept")} />
       <section>
-        <h2 className="mb-3 text-lg font-bold">Available tasks</h2>
-        {sortedAvail.length === 0 && <p className="text-sm text-muted-foreground">No open requests right now.</p>}
+        <h2 className="mb-3 text-lg font-bold">{t("availTasks")}</h2>
+        {sortedAvail.length === 0 && <p className="text-sm text-muted-foreground">{t("noOpen")}</p>}
         <div className="grid gap-3 md:grid-cols-2">
           {sortedAvail.map((r) => (
             <RequestCard key={r.id} r={r} here={here}>
-              <button className={`${btn} bg-sos text-sos-foreground`} onClick={() => act(r.id, "accept")}>Accept task</button>
+              <button className={`${btn} bg-sos text-sos-foreground`} onClick={() => act(r.id, "accept")}>{t("acceptTask")}</button>
             </RequestCard>
           ))}
         </div>
       </section>
       <section>
-        <h2 className="mb-3 text-lg font-bold">Achievements</h2>
+        <h2 className="mb-3 text-lg font-bold">{t("achievements")}</h2>
         <div className="flex flex-wrap gap-2">
           {badgesFor(profile).map((b) => (
             <span key={b.name} title={b.desc} className={`rounded-full border px-3 py-1 text-sm ${b.earned ? "bg-accent font-semibold" : "opacity-40"}`}>
@@ -172,7 +174,7 @@ function VolunteerView({ profile }: { profile: Profile }) {
       </section>
       {done.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-bold">Task history</h2>
+          <h2 className="mb-3 text-lg font-bold">{t("taskHistory")}</h2>
           <ul className="divide-y rounded-2xl border bg-card text-sm">
             {done.map((r) => (
               <li key={r.id} className="flex justify-between p-3"><span>{r.request_code}</span><span className="text-muted-foreground">{r.completed_at && new Date(r.completed_at).toLocaleDateString()}</span></li>
@@ -204,6 +206,7 @@ function StatusSelect({ r, onDone }: { r: Req; onDone: () => void }) {
 function NgoView({ profile }: { profile: Profile }) {
   const { rows, load } = useRequests();
   const here = useHere();
+  const { t } = useI18n();
   const [resCount, setResCount] = useState(0);
   useEffect(() => {
     supabase.from("resources").select("quantity").eq("owner_id", profile.id).then(({ data }) => setResCount((data ?? []).reduce((s, r) => s + r.quantity, 0)));
@@ -212,20 +215,20 @@ function NgoView({ profile }: { profile: Profile }) {
   const active = mine.filter((r) => r.status !== "completed");
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold">{profile.org_name || "NGO"} dashboard</h1>
+      <h1 className="text-2xl font-extrabold">{profile.org_name || "NGO"} · {t("dashboard")}</h1>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Assigned to us" value={mine.length} />
-        <Stat label="Active" value={active.length} />
-        <Stat label="Completed" value={mine.filter((r) => r.status === "completed").length} />
-        <Stat label="Resources" value={resCount} />
+        <Stat label={t("assignedToUs")} value={mine.length} />
+        <Stat label={t("active")} value={active.length} />
+        <Stat label={t("completed")} value={mine.filter((r) => r.status === "completed").length} />
+        <Stat label={t("resourcesCamps")} value={resCount} />
       </div>
       <div className="flex gap-2">
-        <Link to="/profile" className={`${btn} border`}>My organization & services</Link>
-        <Link to="/map" className={`${btn} border`}>Map</Link>
+        <Link to="/profile" className={`${btn} border`}>{t("myOrgServices")}</Link>
+        <Link to="/map" className={`${btn} border`}>{t("map")}</Link>
       </div>
       <section>
-        <h2 className="mb-3 text-lg font-bold">Requests assigned to your organization</h2>
-        {active.length === 0 && <p className="text-sm text-muted-foreground">No requests assigned yet. An admin will assign requests to your organization.</p>}
+        <h2 className="mb-3 text-lg font-bold">{t("assignedHeading")}</h2>
+        {active.length === 0 && <p className="text-sm text-muted-foreground">{t("noAssigned")}</p>}
         <div className="grid gap-3 md:grid-cols-2">
           {active.map((r) => (
             <RequestCard key={r.id} r={r} here={here}>
@@ -240,6 +243,7 @@ function NgoView({ profile }: { profile: Profile }) {
 
 function AdminView() {
   const { rows, load } = useRequests();
+  const { t } = useI18n();
   const [people, setPeople] = useState<Profile[]>([]);
   const [tab, setTab] = useState<"requests" | "users">("requests");
   const [ngoIds, setNgoIds] = useState<string[]>([]);
@@ -287,17 +291,17 @@ function AdminView() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold">Admin command center</h1>
+      <h1 className="text-2xl font-extrabold">{t("adminCenter")}</h1>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <Stat label="Requests" value={rows.length} />
-        <Stat label="Volunteers" value={vols.length} />
+        <Stat label={t("requests")} value={rows.length} />
+        <Stat label={t("volunteers")} value={vols.length} />
         <Stat label="NGOs" value={ngos.length} />
-        <Stat label="Active" value={rows.filter((r) => r.status !== "completed").length} />
-        <Stat label="Completed" value={rows.filter((r) => r.status === "completed").length} />
+        <Stat label={t("active")} value={rows.filter((r) => r.status !== "completed").length} />
+        <Stat label={t("completed")} value={rows.filter((r) => r.status === "completed").length} />
       </div>
       <div className="flex gap-2">
         {(["requests", "users"] as const).map((x) => (
-          <button key={x} onClick={() => setTab(x)} className={`${btn} ${tab === x ? "bg-primary text-primary-foreground" : "border"}`}>{x === "requests" ? "Requests" : "Users"}</button>
+          <button key={x} onClick={() => setTab(x)} className={`${btn} ${tab === x ? "bg-primary text-primary-foreground" : "border"}`}>{x === "requests" ? t("requests") : t("users")}</button>
         ))}
       </div>
       {tab === "requests" ? (
@@ -306,11 +310,11 @@ function AdminView() {
             <RequestCard key={r.id} r={r} here={null}>
               <StatusSelect r={r} onDone={load} />
               <select aria-label="Assign volunteer" value={r.volunteer_id ?? ""} onChange={(e) => assign(r.id, e.target.value)} className="rounded-lg border bg-background px-2 py-1.5 text-sm">
-                <option value="">No volunteer</option>
+                <option value="">{t("noVolunteer")}</option>
                 {vols.map((v) => <option key={v.id} value={v.id}>{v.full_name || v.id.slice(0, 6)}</option>)}
               </select>
               <select aria-label="Assign NGO" value={r.ngo_id ?? ""} onChange={(e) => assignNgo(r.id, e.target.value)} className="rounded-lg border bg-background px-2 py-1.5 text-sm">
-                <option value="">No NGO</option>
+                <option value="">{t("noNgo")}</option>
                 {approvedNgos.map((n) => <option key={n.id} value={n.id}>{n.org_name || n.full_name || n.id.slice(0, 6)}</option>)}
               </select>
             </RequestCard>
@@ -347,6 +351,7 @@ const URG: Record<string, number> = { critical: 0, medium: 1, low: 2 };
 
 function AiTriage({ rows, onAccept }: { rows: Req[]; onAccept: (id: string) => Promise<void> }) {
   const run = useServerFn(summarizeOpenRequests);
+  const { t } = useI18n();
   const [items, setItems] = useState<Summary[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -369,15 +374,15 @@ function AiTriage({ rows, onAccept }: { rows: Req[]; onAccept: (id: string) => P
     <section className="rounded-2xl border bg-card p-4 shadow-soft">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="flex items-center gap-2 text-lg font-bold"><Sparkles className="h-5 w-5 text-primary" /> AI triage</h2>
-          <p className="text-sm text-muted-foreground">AI-powered summary of open requests by urgency and needs. Always check the details before accepting.</p>
+          <h2 className="flex items-center gap-2 text-lg font-bold"><Sparkles className="h-5 w-5 text-primary" /> {t("aiTriage")}</h2>
+          <p className="text-sm text-muted-foreground">{t("aiDesc")}</p>
         </div>
         <button onClick={go} disabled={busy || rows.length === 0} className={`${btn} flex items-center gap-2 bg-primary text-primary-foreground disabled:opacity-50`}>
-          {busy && <Loader2 className="h-4 w-4 animate-spin" />} {items ? "Refresh summary" : "Summarize open requests"}
+          {busy && <Loader2 className="h-4 w-4 animate-spin" />} {items ? t("refreshSummary") : t("summarize")}
         </button>
       </div>
       {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
-      {items && !err && shown.length === 0 && <p className="mt-3 text-sm text-muted-foreground">No open requests to summarize.</p>}
+      {items && !err && shown.length === 0 && <p className="mt-3 text-sm text-muted-foreground">{t("noOpen")}</p>}
       <ul className="mt-3 space-y-2">
         {shown.map((i) => {
           const r = byId.get(i.id)!;
@@ -391,19 +396,19 @@ function AiTriage({ rows, onAccept }: { rows: Req[]; onAccept: (id: string) => P
               <div className="mt-1 flex flex-wrap gap-1">
                 {i.needs.map((n) => <span key={n} className="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold text-secondary-foreground">{n}</span>)}
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">Why: {i.reason}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("why")}: {i.reason}</p>
               {confirming === i.id ? (
                 <div className="mt-2 rounded-lg bg-muted p-3 text-sm">
-                  <p><b>Victim reported:</b> {r.emergency_type.split(",").join(", ")} · severity {r.priority}{r.people_count ? ` · ${r.people_count} people` : ""}</p>
+                  <p><b>{t("victimReported")}:</b> {r.emergency_type.split(",").join(", ")} · severity {r.priority}{r.people_count ? ` · ${r.people_count} people` : ""}</p>
                   {r.description && <p className="mt-1">"{r.description}"</p>}
-                  <p className="mt-2 font-semibold">Accept this task?</p>
+                  <p className="mt-2 font-semibold">{t("acceptQ")}</p>
                   <div className="mt-2 flex gap-2">
-                    <button className={`${btn} bg-sos text-sos-foreground`} onClick={async () => { setConfirming(null); await onAccept(i.id); }}>Yes, accept</button>
-                    <button className={`${btn} border bg-card`} onClick={() => setConfirming(null)}>Cancel</button>
+                    <button className={`${btn} bg-sos text-sos-foreground`} onClick={async () => { setConfirming(null); await onAccept(i.id); }}>{t("yesAccept")}</button>
+                    <button className={`${btn} border bg-card`} onClick={() => setConfirming(null)}>{t("cancel")}</button>
                   </div>
                 </div>
               ) : (
-                <button className={`${btn} mt-2 border`} onClick={() => setConfirming(i.id)}>Review & accept</button>
+                <button className={`${btn} mt-2 border`} onClick={() => setConfirming(i.id)}>{t("reviewAccept")}</button>
               )}
             </li>
           );
