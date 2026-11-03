@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const { session } = useAuth();
+  const { t } = useI18n();
   const [mode, setMode] = useState<"in" | "up">("in");
   const [method, setMethod] = useState<"password" | "code">("password");
   const [role, setRole] = useState<"volunteer" | "ngo">("volunteer");
@@ -90,13 +92,13 @@ function AuthPage() {
         <div className="grid grid-cols-2 rounded-lg bg-muted p-1 text-sm font-semibold">
           {(["in", "up"] as const).map((m) => (
             <button key={m} onClick={() => setMode(m)} className={`rounded-md py-1.5 ${mode === m ? "bg-card shadow-sm" : "text-muted-foreground"}`}>
-              {m === "in" ? "Sign in" : "Register"}
+              {m === "in" ? t("signIn") : t("register")}
             </button>
           ))}
         </div>
         {codeFor ? (
           <form onSubmit={verify} className="mt-5 space-y-3">
-            <p className="text-sm text-muted-foreground">Enter the code we sent to <b>{f.email}</b>.</p>
+            <p className="text-sm text-muted-foreground">{t("enterCodeSent")} <b>{f.email}</b>.</p>
             <input
               required
               autoFocus
@@ -109,10 +111,10 @@ function AuthPage() {
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
             />
             <button disabled={busy || code.length < 6} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-semibold text-primary-foreground disabled:opacity-60">
-              {busy && <Loader2 className="h-4 w-4 animate-spin" />} Verify code
+              {busy && <Loader2 className="h-4 w-4 animate-spin" />} {t("verifyCode")}
             </button>
             <button type="button" onClick={() => { setCodeFor(null); setCode(""); }} className="w-full text-sm text-muted-foreground underline">
-              Use a different email
+              {t("differentEmail")}
             </button>
           </form>
         ) : (
@@ -121,7 +123,7 @@ function AuthPage() {
             <div className="flex gap-2 text-sm">
               {(["password", "code"] as const).map((m) => (
                 <button type="button" key={m} onClick={() => setMethod(m)} className={`flex-1 rounded-lg border-2 py-1.5 font-semibold ${method === m ? "border-sos" : ""}`}>
-                  {m === "password" ? "Password" : "Email code"}
+                  {m === "password" ? t("password") : t("emailCode")}
                 </button>
               ))}
             </div>
@@ -131,27 +133,27 @@ function AuthPage() {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 {(["volunteer", "ngo"] as const).map((r) => (
                   <button type="button" key={r} onClick={() => setRole(r)} className={`rounded-lg border-2 py-2 font-semibold ${role === r ? "border-sos" : ""}`}>
-                    {r === "volunteer" ? "🙋 Volunteer" : "🏢 NGO"}
+                    {r === "volunteer" ? t("volunteer") : t("ngo")}
                   </button>
                 ))}
               </div>
-              {role === "ngo" && <input required className={input} placeholder="Organization name" value={f.org_name} onChange={(e) => setF({ ...f, org_name: e.target.value })} />}
-              <input required className={input} placeholder={role === "ngo" ? "Contact person" : "Full name"} value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} />
-              <input required className={input} placeholder="Mobile number" inputMode="tel" value={f.mobile} onChange={(e) => setF({ ...f, mobile: e.target.value })} />
+              {role === "ngo" && <input required className={input} placeholder={t("orgName")} value={f.org_name} onChange={(e) => setF({ ...f, org_name: e.target.value })} />}
+              <input required className={input} placeholder={role === "ngo" ? t("contactPerson") : t("fullName")} value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} />
+              <input required className={input} placeholder={t("mobile")} inputMode="tel" value={f.mobile} onChange={(e) => setF({ ...f, mobile: e.target.value })} />
             </>
           )}
-          <input required type="email" className={input} placeholder="Email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
-          {!(mode === "in" && method === "code") && <input required type="password" minLength={6} className={input} placeholder="Password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />}
+          <input required type="email" className={input} placeholder={t("email")} value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+          {!(mode === "in" && method === "code") && <input required type="password" minLength={6} className={input} placeholder={t("password")} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />}
           <button disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-semibold text-primary-foreground">
-            {busy && <Loader2 className="h-4 w-4 animate-spin" />} {mode === "in" ? (method === "code" ? "Send me a code" : "Sign in") : "Create account"}
+            {busy && <Loader2 className="h-4 w-4 animate-spin" />} {mode === "in" ? (method === "code" ? t("sendCode") : t("signIn")) : t("createAccount")}
           </button>
         </form>
         )}
-        <div className="my-4 text-center text-xs text-muted-foreground">or</div>
+        <div className="my-4 text-center text-xs text-muted-foreground">{t("or")}</div>
         <button onClick={google} className="w-full rounded-lg border py-2.5 font-semibold hover:bg-muted">
-          Continue with Google
+          {t("google")}
         </button>
-        <p className="mt-4 text-center text-xs text-muted-foreground">Need help right now? You don't need an account — use SOS.</p>
+        <p className="mt-4 text-center text-xs text-muted-foreground">{t("needHelpNow")}</p>
       </div>
     </AppShell>
   );
