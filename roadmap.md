@@ -4,6 +4,6 @@
 - [ ] Custom domain reliefconnect.in — blocked: needs paid plan
 - [x] AI summary of open SOS requests in volunteer dashboard, confirm before acting
 - [ ] Email admin when a new SOS is submitted — blocked: needs an email domain the user owns
-- [ ] Approved NGOs see/update only requests assigned to them; admins assign NGOs and manage all
+- [x] Approved NGOs see/update only requests assigned to them; admins assign NGOs and manage all
 - [ ] Publish NGO approval safeguards + admin dashboard changes
 - [ ] Fix language not staying when switching between pages/tabs
