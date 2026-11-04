@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.lovable.reliefconnect.twa",
+        "sha256_cert_fingerprints": ["C8:F3:CA:49:7B:C5:A5:80:95:B7:9B:42:06:6F:45:FA:94:C3:8C:40:6F:B7:09:D4:4F:7A:B2:D2:C9:E9:13:B7"]
+      }
+    }]
