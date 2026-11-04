@@ -1,14 +1,22 @@
 // Single service-worker registrar. Never registers in dev, preview or iframes.
 const ESSENTIAL_PAGES = ["/", "/sos", "/track"];
+const PREVIEW_LABEL = /^(?:id-preview|preview)(?:-[a-z0-9]+)?--.+$/;
+
+function isPreviewHost(h: string): boolean {
+  const label = h.split(".")[0] ?? "";
+  for (const d of [".lovable.app", ".gpt-eng.com", ".gptengineer.run"]) {
+    if (h.endsWith(d) && (PREVIEW_LABEL.test(label) || /^project--.+-dev$/.test(label))) return true;
+  }
+  for (const d of ["lovableproject.com", "lovableproject-dev.com", "beta.lovable.dev"]) {
+    if (h === d || h.endsWith("." + d)) return true;
+  }
+  return false;
+}
 
 function refused(): boolean {
   if (!import.meta.env.PROD) return true;
   try { if (window.self !== window.top) return true; } catch { return true; }
-  const h = window.location.hostname;
-  if (h.startsWith("id-preview--") || h.startsWith("preview--")) return true;
-  for (const d of ["lovableproject.com", "lovableproject-dev.com", "beta.lovable.dev"]) {
-    if (h === d || h.endsWith("." + d)) return true;
-  }
+  if (isPreviewHost(window.location.hostname.toLowerCase())) return true;
   return new URLSearchParams(window.location.search).get("sw") === "off";
 }
 
@@ -16,7 +24,7 @@ export async function setupServiceWorker() {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
   if (refused()) {
     const regs = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(regs.filter((r) => r.active?.scriptURL.endsWith("/sw.js")).map((r) => r.unregister()));
+    await Promise.all(regs.filter((r) => (r.active ?? r.waiting ?? r.installing)?.scriptURL.endsWith("/sw.js")).map((r) => r.unregister()));
     return;
   }
   try {

@@ -17,3 +17,4 @@
 - Leaflet is loaded only via React.lazy behind ClientOnly (SSR-safe).
 - NGO privileges come only from an admin via approve_ngo (target must have applied as NGO) and are removed via revoke_ngo; signup always grants volunteer, so self-chosen roles never grant access.
 - AI features run in *.server.ts helpers called from requireSupabaseAuth server functions; prompts and the AI key never reach the browser.
+- Offline support uses vite-plugin-pwa generateSW registered only from src/lib/pwa.ts, which refuses dev/preview/iframe hosts; manifest icons live in public/ for APK wrappers.
