@@ -6,4 +6,4 @@
 - [ ] Email admin when a new SOS is submitted — blocked: needs an email domain the user owns
 - [x] Approved NGOs see/update only requests assigned to them; admins assign NGOs and manage all
 - [x] Publish NGO approval safeguards + admin dashboard changes
-- [ ] Fix language not staying when switching between pages/tabs
+- [x] Fix language not staying when switching between pages/tabs

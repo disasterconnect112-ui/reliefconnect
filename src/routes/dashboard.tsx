@@ -295,7 +295,7 @@ function AdminView() {
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Stat label={t("requests")} value={rows.length} />
         <Stat label={t("volunteers")} value={vols.length} />
-        <Stat label="NGOs" value={ngos.length} />
+        <Stat label={t("ngo")} value={ngos.length} />
         <Stat label={t("active")} value={rows.filter((r) => r.status !== "completed").length} />
         <Stat label={t("completed")} value={rows.filter((r) => r.status === "completed").length} />
       </div>
