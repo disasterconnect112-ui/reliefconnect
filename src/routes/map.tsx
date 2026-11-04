@@ -21,7 +21,7 @@ export const Route = createFileRoute("/map")({
   component: MapPage,
 });
 
-const LEGEND = [
+const LEGEND: [string, string][] = [
   ["bg-critical", "lgRequest"],
   ["bg-success", "volunteer"],
   ["bg-normal", "ngo"],
