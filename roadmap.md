@@ -8,3 +8,4 @@
 - [x] Publish NGO approval safeguards + admin dashboard changes
 - [x] Fix language not staying when switching between pages/tabs
 - [x] Offline mode + app icons ready for Android APK packaging
+- [ ] Build Android APK file for the user
