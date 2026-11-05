@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
+import { emailAllowed } from "@/lib/email-rules";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth")({
@@ -54,6 +55,11 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithPassword({ email: f.email, password: f.password });
       if (error) toast.error(error.message);
     } else {
+      if (!emailAllowed(role, f.email)) {
+        toast.error(t("emailPattern"));
+        setBusy(false);
+        return;
+      }
       const { data, error } = await supabase.auth.signUp({
         email: f.email,
         password: f.password,
