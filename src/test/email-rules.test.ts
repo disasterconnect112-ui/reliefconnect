@@ -1,7 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { emailAllowed } from "@/lib/email-rules";
+import { emailAllowed, normalizeEmail } from "@/lib/email-rules";
 
 describe("registration email rules", () => {
+  it("normalizes the exact email submitted without changing case or interior characters", () => {
+    expect(normalizeEmail("  Smanda@gmail.com \n")).toBe("Smanda@gmail.com");
+    expect(normalizeEmail("s manda@gmail.com")).toBe("s manda@gmail.com");
+  });
+
+  it("accepts surrounding whitespace for both registration roles", () => {
+    expect(emailAllowed("volunteer", "  smanda@gmail.com  ")).toBe(true);
+    expect(emailAllowed("ngo", "  help@relief-org2.org  ")).toBe(true);
+  });
+
+  it("rejects empty and partial addresses for both roles", () => {
+    for (const role of ["volunteer", "ngo"] as const) {
+      for (const email of ["", "   ", "team@", "@gmail.com", "team@@relief.org", "team@relief.org.extra"]) {
+        expect(emailAllowed(role, email)).toBe(false);
+      }
+    }
+  });
   it("accepts volunteer gmail addresses like firstinitiallastname@gmail.com", () => {
     expect(emailAllowed("volunteer", "smanda@gmail.com")).toBe(true);
     expect(emailAllowed("volunteer", "ab@gmail.com")).toBe(true);
