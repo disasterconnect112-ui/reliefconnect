@@ -9,6 +9,8 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "ReliefConnect — Emergency SOS & Disaster Relief" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "One-tap emergency SOS with no login. Volunteers and NGOs coordinate disaster relief in real time." },
       { property: "og:title", content: "ReliefConnect — Emergency SOS & Disaster Relief" },
       { property: "og:description", content: "One-tap emergency SOS with no login. Volunteers and NGOs coordinate relief." },

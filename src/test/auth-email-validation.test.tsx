@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -44,29 +44,31 @@ describe("email registration submission", () => {
   it.each([
     ["volunteer", "team@yahoo.com"],
     ["ngo", "team@gmail.com"],
-  ] as const)("blocks invalid %s registration before any signup request", (role, email) => {
+  ] as const)("blocks invalid %s registration before any signup request", async (role, email) => {
     register(role, email);
     fireEvent.click(screen.getByRole("button", { name: "createAccount" }));
     expect(mocks.signUp).not.toHaveBeenCalled();
     fireEvent.change(screen.getByRole("textbox", { name: "email" }), { target: { value: role === "ngo" ? "team@relief.org" : "team@gmail.com" } });
-    fireEvent.click(screen.getByRole("button", { name: "createAccount" }));
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "createAccount" })));
     expect(mocks.signUp).toHaveBeenCalledTimes(1);
   });
 
   it.each([
     ["volunteer", "  Team@gmail.com  ", "Team@gmail.com"],
     ["ngo", "  team@relief-org2.org  ", "team@relief-org2.org"],
-  ] as const)("submits the same normalized %s address that was validated", (role, email, normalized) => {
+  ] as const)("submits the same normalized %s address that was validated", async (role, email, normalized) => {
     register(role, email);
     fireEvent.blur(screen.getByRole("textbox", { name: "email" }));
-    fireEvent.click(screen.getByRole("button", { name: "createAccount" }));
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "createAccount" })));
     expect(mocks.signUp).toHaveBeenCalledWith(expect.objectContaining({ email: normalized }));
   });
 
-  it("does not apply registration patterns to existing-account sign-in", () => {
+  it("does not apply registration patterns to existing-account sign-in", async () => {
     register("volunteer", "existing.user@outlook.com");
     fireEvent.click(screen.getByRole("button", { name: "signIn" }));
-    fireEvent.click(screen.getByRole("button", { name: "signIn" }).lastElementChild ?? screen.getAllByRole("button", { name: "signIn" })[1]);
+    const submit = screen.getAllByRole("button", { name: "signIn" }).find((button) => button.getAttribute("type") === "submit");
+    if (!submit) throw new Error("Missing sign-in submit");
+    await act(async () => fireEvent.click(submit));
     expect(mocks.signInWithPassword).toHaveBeenCalledWith(expect.objectContaining({ email: "existing.user@outlook.com" }));
     expect(mocks.signUp).not.toHaveBeenCalled();
   });
@@ -76,7 +78,7 @@ describe("email registration submission", () => {
     register("volunteer", "team@gmail.com");
     fireEvent.click(screen.getByRole("button", { name: "createAccount" }));
     await waitFor(() => expect(mocks.error).toHaveBeenCalledWith("authRequestFailed"));
-    fireEvent.click(screen.getByRole("button", { name: "createAccount" }));
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "createAccount" })));
     expect(mocks.signUp).toHaveBeenCalledTimes(2);
   });
 });

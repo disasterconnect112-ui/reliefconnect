@@ -11,6 +11,8 @@ export const Route = createFileRoute("/sos")({
   head: () => ({
     meta: [
       { title: "Send SOS — ReliefConnect" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Request emergency help instantly. No registration — share your location and get a tracking ID." },
       { property: "og:title", content: "Send SOS — ReliefConnect" },
       { property: "og:description", content: "Request emergency help instantly, no registration required." },

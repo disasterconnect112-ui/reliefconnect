@@ -13,6 +13,8 @@ export const Route = createFileRoute("/map")({
   head: () => ({
     meta: [
       { title: "Live Relief Map — ReliefConnect" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Live map of emergency requests, volunteers, NGOs, shelters and relief camps." },
       { property: "og:title", content: "Live Relief Map — ReliefConnect" },
       { property: "og:description", content: "Live map of emergency requests and responders." },

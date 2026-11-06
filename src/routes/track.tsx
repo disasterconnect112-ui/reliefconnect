@@ -11,6 +11,8 @@ export const Route = createFileRoute("/track")({
   head: () => ({
     meta: [
       { title: "Track Emergency Request — ReliefConnect" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Check the live status of your SOS using your request ID." },
       { property: "og:title", content: "Track Emergency Request — ReliefConnect" },
       { property: "og:description", content: "Check the live status of your SOS using your request ID." },

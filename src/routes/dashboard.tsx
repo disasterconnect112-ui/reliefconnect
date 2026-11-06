@@ -15,6 +15,8 @@ export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — ReliefConnect" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Manage emergency requests, relief tasks and coordination." },
       { property: "og:title", content: "Dashboard — ReliefConnect" },
       { property: "og:description", content: "Manage emergency requests and relief tasks." },

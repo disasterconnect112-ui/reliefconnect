@@ -12,6 +12,8 @@ export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
       { title: "My Profile — ReliefConnect" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "Manage your volunteer or NGO profile, skills, services and resources." },
       { property: "og:title", content: "My Profile — ReliefConnect" },
       { property: "og:description", content: "Manage your volunteer or NGO profile." },
