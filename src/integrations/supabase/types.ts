@@ -226,6 +226,38 @@ export type Database = {
         }
         Relationships: []
       }
+      victim_progress_updates: {
+        Row: {
+          created_at: string
+          id: string
+          progress: string
+          request_id: string
+          volunteer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          progress: string
+          request_id: string
+          volunteer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          progress?: string
+          request_id?: string
+          volunteer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "victim_progress_updates_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "emergency_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -288,6 +320,20 @@ export type Database = {
           status: string
           updated_at: string
         }[]
+      }
+      track_request_private: {
+        Args: { _code: string; _token: string }
+        Returns: Json
+      }
+      verify_volunteer_progress: {
+        Args: {
+          _code: string
+          _progress: string
+          _status: string
+          _token: string
+          _volunteer: string
+        }
+        Returns: undefined
       }
       volunteer_action: {
         Args: { _action: string; _request: string }

@@ -6,6 +6,7 @@ import { AppShell, PriorityBadge } from "@/components/AppShell";
 import { useI18n } from "@/lib/i18n";
 import { EMERGENCY_TYPES, listen, matchEmergency, speak, type EmergencyType } from "@/lib/voice";
 import { enqueueSos, sendSos } from "@/lib/offline";
+import { saveTrackingKey } from "@/lib/victim-progress";
 
 export const Route = createFileRoute("/sos")({
   head: () => ({
@@ -35,7 +36,7 @@ function SosPage() {
   const [listening, setListening] = useState(false);
   const [form, setForm] = useState({ name: "", mobile: "", description: "", people: "" });
   const [sending, setSending] = useState(false);
-  const [result, setResult] = useState<{ code: string } | null>(null);
+  const [result, setResult] = useState<{ code: string; token: string } | null>(null);
   const [saved, setSaved] = useState(false);
 
   const getLocation = () => {
@@ -99,8 +100,9 @@ function SosPage() {
       toast.error("Could not send. Please try again."); return;
     }
     const code = data[0].request_code;
-    localStorage.setItem("lastRequest", code);
-    setResult({ code });
+    const token = data[0].tracking_token;
+    saveTrackingKey(code, token);
+    setResult({ code, token });
     speak(`${t("sosSent")}. ${code.split("").join(" ")}`, lang);
   };
 
@@ -128,6 +130,8 @@ function SosPage() {
           <h1 className="mt-3 text-2xl font-extrabold">{t("sosSent")}</h1>
           <p className="mt-2 text-muted-foreground">{t("saveId")}</p>
           <p className="mt-4 rounded-lg bg-muted py-3 font-mono text-2xl font-bold tracking-wider">{result.code}</p>
+          <p className="mt-4 text-sm font-semibold">{t("privateTrackingKey")}</p>
+          <p className="mt-1 break-all rounded-lg bg-muted p-3 font-mono text-sm select-all">{result.token}</p>
           <Link to="/track" search={{ id: result.code }} className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground">
             {t("track")}
           </Link>

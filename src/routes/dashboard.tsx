@@ -10,6 +10,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useServerFn } from "@tanstack/react-start";
 import { Sparkles, Loader2 } from "lucide-react";
 import { summarizeOpenRequests } from "@/lib/sos-ai.functions";
+import { VictimUpdates } from "@/components/VictimUpdates";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -89,6 +90,7 @@ function RequestCard({ r, here, children }: { r: Req; here: { lat: number; lng: 
         {r.people_count ? `${r.people_count} ${t("peopleWord")} · ` : ""}
         {r.name ?? ""} {r.mobile ? `· ${r.mobile}` : ""} · {t("status")}: <b>{t(r.status)}</b>
       </p>
+      <VictimUpdates requestId={r.id} />
       {children && <div className="mt-3 flex flex-wrap gap-2">{children}</div>}
     </div>
   );

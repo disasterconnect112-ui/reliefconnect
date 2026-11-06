@@ -11,6 +11,7 @@
 
 ## Architecture rules
 - Victims never authenticate: SOS create/track go only through security-definer RPCs (submit_sos, track_request) so anon has no table access.
+- Victim progress confirmations use a separate token-verified RPC and audit trail; they never modify volunteer status or award points, and stale assignments are rejected.
 - Volunteer task state changes and points go through the volunteer_action RPC; a trigger blocks users from editing their own points/role.
 - Admin role lives only in user_roles (has_role), never assigned by signup.
 - UI strings live in src/lib/i18n.tsx as one row per key across all languages; keep the language order fixed.

@@ -57,6 +57,20 @@
       "when": 1793682351228,
       "tag": "0007_fix_status_history_logging",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793939932949,
+      "tag": "0008_victim_progress_verification",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793940035591,
+      "tag": "0009_lock_direct_victim_update_access",
+      "breakpoints": true
     }
   ]
 }

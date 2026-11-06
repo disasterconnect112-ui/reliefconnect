@@ -9,3 +9,5 @@
 - [x] Fix language not staying when switching between pages/tabs
 - [x] Offline mode + app icons ready for Android APK packaging
 - [x] Build Android APK file for the user (publish again so the full-screen link goes live)
+
+- [ ] Victims privately verify and update assigned volunteer progress

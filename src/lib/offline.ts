@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { saveTrackingKey } from "@/lib/victim-progress";
 
 export type SosArgs = {
   _types: string[]; _severity: string; _lat: number; _lng: number; _name: string; _mobile: string; _description: string; _people: number | null;
@@ -44,10 +45,12 @@ export async function flushQueue(): Promise<string[]> {
     for (const item of q) {
       const { data, error } = await sendSos(item);
       if (error || !data?.[0]) left.push(item);
-      else sent.push(data[0].request_code);
+      else {
+        saveTrackingKey(data[0].request_code, data[0].tracking_token);
+        sent.push(data[0].request_code);
+      }
     }
     writeQueue(left);
-    if (sent.length) localStorage.setItem("lastRequest", sent[sent.length - 1]!);
   } finally { flushing = false; }
   return sent;
 }
